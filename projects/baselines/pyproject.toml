@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "baselines"
+version = "0.1.0"
+authors = [{ name = "Yicheng Luo", email = "ethanluoyc@gmail.com" }]
+requires-python = ">=3.9"
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.github
+  | \.venv
+  | docs
+  | third_party
+  | scratch
+)/
+'''
+
+[tool.ruff]
+line-length = 120
+select = [
+  "E", # pycodestyle
+  "F", # pyflakes
+  "I",
+]
+ignore = ["E731"]
+exclude = ["third_party", ".venv"]
+
+[tool.ruff.extend-per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-first-party = ["corax", "baselines"]
+force-single-line = true
+single-line-exclusions = ["typing"]
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.pyright]
+include = ["baselines"]
+exclude = ["**/node_modules", "**/__pycache__"]
+
+reportMissingImports = true
+reportMissingTypeStubs = false
+
+pythonVersion = "3.9"
+pythonPlatform = "Linux"

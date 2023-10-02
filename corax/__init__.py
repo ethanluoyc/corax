@@ -12,4 +12,7 @@ from corax.core import VariableSource
 from corax.core import Worker
 
 # Expose the environment loop.
+from corax.environment_loop import EnvironmentLoop
+
+# Expose utilities for working with EnvironmentSpec
 from corax.specs import make_environment_spec

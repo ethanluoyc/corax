@@ -1,0 +1,15 @@
+-f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+jax[cuda11_local]
+ml-collections
+
+absl-py>=0.12.0
+numpy>=1.20.2,<1.25.0
+
+gym>=0.21.0,<0.24.0
+d4rl @ git+https://github.com/Farama-Foundation/d4rl@71a9549#egg=d4rl
+mujoco_py @ git+https://github.com/ethanluoyc/mujoco-py@v2.1.2.14-patch
+dm-control
+gymnasium
+
+corax[all]

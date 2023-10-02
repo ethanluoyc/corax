@@ -1,0 +1,113 @@
+# Copyright 2018 DeepMind Technologies Limited. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""ActorCore interface definition."""
+
+import dataclasses
+from typing import Callable, Generic, Mapping, Tuple, TypeVar, Union
+
+import chex
+import jax
+import jax.numpy as jnp
+
+from corax import types
+from corax.jax import networks as networks_lib
+from corax.jax import utils
+from corax.jax.types import PRNGKey
+
+NoneType = type(None)
+# The state of the actor. This could include recurrent network state or any
+# other state which needs to be propagated through the select_action calls.
+State = TypeVar("State")
+# The extras to be passed to the observe method.
+Extras = TypeVar("Extras")
+RecurrentState = TypeVar("RecurrentState")
+SelectActionFn = Callable[
+    [networks_lib.Params, networks_lib.Observation, State],
+    Tuple[networks_lib.Action, State],
+]
+
+
+@dataclasses.dataclass
+class ActorCore(Generic[State, Extras]):
+    """Pure functions that define the algorithm-specific actor functionality."""
+
+    init: Callable[[PRNGKey], State]
+    select_action: SelectActionFn
+    get_extras: Callable[[State], Extras]
+
+
+# A simple feed forward policy which produces no extras and takes only an RNGKey
+# as a state.
+FeedForwardPolicy = Callable[
+    [networks_lib.Params, PRNGKey, networks_lib.Observation], networks_lib.Action
+]
+
+FeedForwardPolicyWithExtra = Callable[
+    [networks_lib.Params, PRNGKey, networks_lib.Observation],
+    Tuple[networks_lib.Action, types.NestedArray],
+]
+
+
+Policy = Union[FeedForwardPolicy, FeedForwardPolicyWithExtra]
+
+
+def batched_feed_forward_to_actor_core(
+    policy: FeedForwardPolicy,
+) -> ActorCore[PRNGKey, Tuple[()]]:
+    """A convenience adaptor from FeedForwardPolicy to ActorCore."""
+
+    def select_action(
+        params: networks_lib.Params,
+        observation: networks_lib.Observation,
+        state: PRNGKey,
+    ):
+        rng = state
+        rng1, rng2 = jax.random.split(rng)
+        observation = utils.add_batch_dim(observation)
+        action = utils.squeeze_batch_dim(policy(params, rng1, observation))
+        return action, rng2
+
+    def init(rng: PRNGKey) -> PRNGKey:
+        return rng
+
+    def get_extras(unused_rng: PRNGKey) -> Tuple[()]:
+        return ()
+
+    return ActorCore(init=init, select_action=select_action, get_extras=get_extras)
+
+
+@chex.dataclass(frozen=True, mappable_dataclass=False)
+class SimpleActorCoreStateWithExtras:
+    rng: PRNGKey
+    extras: Mapping[str, jnp.ndarray]
+
+
+def unvectorize_select_action(actor_core: ActorCore) -> ActorCore:
+    """Makes an actor core's select_action method expect unbatched arguments."""
+
+    def unvectorized_select_action(
+        params: networks_lib.Params,
+        observations: networks_lib.Observation,
+        state: State,
+    ) -> Tuple[networks_lib.Action, State]:
+        observations, state = utils.add_batch_dim((observations, state))
+        actions, state = actor_core.select_action(params, observations, state)
+        return utils.squeeze_batch_dim((actions, state))
+
+    return ActorCore(
+        init=actor_core.init,
+        select_action=unvectorized_select_action,
+        get_extras=actor_core.get_extras,
+    )
