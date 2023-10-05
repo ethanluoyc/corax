@@ -59,12 +59,13 @@ def load_tfds_dataset(
     dataset_name: str,
     num_episodes: Optional[int] = None,
     env_spec: Optional[specs.EnvironmentSpec] = None,
+    download: bool = True,
 ) -> tf.data.Dataset:
     """Returns a TFDS dataset with the given name."""
     # Used only in tests.
     del env_spec
 
-    dataset = tfds.load(dataset_name)["train"]
+    dataset = tfds.load(dataset_name, download=download)["train"]
     if num_episodes:
         dataset = dataset.take(num_episodes)
     return dataset

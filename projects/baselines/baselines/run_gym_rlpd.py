@@ -111,7 +111,8 @@ def main(_):
         redq_config,
         make_demonstrations=_get_demonstration_dataset_factory(env_name, seed=seed),
     )
-    environment_factory = lambda seed: d4rl_utils.make_environment(env_name, seed)
+
+    environment_factory = lambda seed: d4rl_utils.load_d4rl_environment(env_name, seed)
 
     logger_factory = experiment_utils.LoggerFactory(
         workdir=_WORKDIR.value,

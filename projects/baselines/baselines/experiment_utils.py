@@ -22,6 +22,7 @@ class LoggerFactory:
     def __init__(
         self,
         workdir: Optional[str] = None,
+        log_to_terminal: Optional[bool] = None,
         log_to_wandb: bool = False,
         wandb_kwargs: Optional[Mapping[str, Any]] = None,
         time_delta: float = 1.0,
@@ -35,12 +36,14 @@ class LoggerFactory:
 
         wandb_kwargs = wandb_kwargs or {}
         self._log_to_wandb = log_to_wandb
+
+        if log_to_terminal is None:
+            log_to_terminal = os.environ.get("JOB_ID", None) is None
+
+        self._log_to_terminal = log_to_terminal
         self._run = None
         if log_to_wandb and self._run is None:
-            # pytype: disable=import-error
-            import wandb  # pylint: disable=import-outside-toplevel
-
-            # pytype: enable=import-error
+            import wandb
 
             wandb.require("service")
             self._run = wandb.init(**wandb_kwargs)
@@ -59,18 +62,25 @@ class LoggerFactory:
         return self._run
 
     def __call__(
-        self, label: str, steps_key: Optional[str] = None, task_instance: int = 0
+        self,
+        label: str,
+        steps_key: Optional[str] = None,
+        instance: Optional[int] = None,
     ):
         """Create an experiment logger."""
         if steps_key is None:
             steps_key = f"{label}_steps"
 
+        if instance is None:
+            instance = 0
+
         # Binding the experiment logger factory ensures that
         # the wandb run associated with the launching process gets
         # serialized and passed to workers correctly.
-        if label == "learner":
+        if label in ("learner",):
             return self.make_default_logger(
                 label=label,
+                log_to_terminal=self._log_to_terminal,
                 asynchronous=self._async_learner_logger,
                 time_delta=_get_time_delta(self._learner_time_delta, self._time_delta),
                 serialize_fn=jax_utils.fetch_devicearray,
@@ -80,9 +90,10 @@ class LoggerFactory:
                 wandb_run=self._run,
                 add_uid=self._add_uid,
             )
-        elif label in ("evaluator", "eval_loop", "evaluation", "eval"):
+        elif label in ("evaluator",):
             return self.make_default_logger(
                 label=label,
+                log_to_terminal=self._log_to_terminal,
                 time_delta=_get_time_delta(
                     self._evaluator_time_delta, self._time_delta
                 ),
@@ -92,10 +103,11 @@ class LoggerFactory:
                 wandb_run=self._run,
                 add_uid=self._add_uid,
             )
-        elif label in ("actor", "train_loop", "train"):
+        elif label in ("actor",):
             return self.make_default_logger(
                 label=label,
-                save_data=task_instance == 0,
+                log_to_terminal=self._log_to_terminal,
+                save_data=instance == 0,
                 time_delta=_get_time_delta(self._actor_time_delta, self._time_delta),
                 steps_key=steps_key,
                 workdir=self._workdir,
@@ -107,6 +119,7 @@ class LoggerFactory:
             logging.warning("Unknown label %s. Fallback to default.", label)
             return self.make_default_logger(
                 label=label,
+                log_to_terminal=self._log_to_terminal,
                 steps_key=steps_key,
                 time_delta=self._time_delta,
                 workdir=self._workdir,
@@ -118,6 +131,7 @@ class LoggerFactory:
     @staticmethod
     def make_default_logger(
         label: str,
+        log_to_terminal: bool = True,
         save_data: bool = True,
         time_delta: float = 1.0,
         asynchronous: bool = False,
@@ -146,9 +160,11 @@ class LoggerFactory:
         """
         if not print_fn:
             print_fn = logging.info
-        terminal_logger = loggers_lib.TerminalLogger(label=label, print_fn=print_fn)
 
-        loggers: List[loggers_lib.Logger] = [terminal_logger]
+        loggers: List[loggers_lib.Logger] = []
+        if log_to_terminal:
+            terminal_logger = loggers_lib.TerminalLogger(label=label, print_fn=print_fn)
+            loggers.append(terminal_logger)
         if save_data and workdir is not None:
             loggers.append(loggers_lib.CSVLogger(workdir, label=label, add_uid=add_uid))
         if save_data and log_to_wandb:

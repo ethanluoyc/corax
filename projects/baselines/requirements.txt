@@ -1,6 +1,6 @@
 -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
-jax[cuda11_local]
+jax[cuda11_local]==0.4.16
 ml-collections
 
 absl-py>=0.12.0
@@ -11,5 +11,18 @@ d4rl @ git+https://github.com/Farama-Foundation/d4rl@71a9549#egg=d4rl
 mujoco_py @ git+https://github.com/ethanluoyc/mujoco-py@v2.1.2.14-patch
 dm-control
 gymnasium
+wandb
 
-corax[all]
+tensorflow-cpu~=2.14.0
+tensorflow-probability~=0.22.0
+tensorflow-datasets~=4.9.3
+dm-reverb~=0.13.0
+rlds
+dm-haiku
+flax
+optax
+rlax
+chex
+dm_env_wrappers
+absl-py
+dm-env

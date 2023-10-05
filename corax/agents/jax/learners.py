@@ -1,5 +1,5 @@
 import time
-from typing import Any, Generic, Iterator, List, Optional, Sequence
+from typing import Any, Callable, Generic, Iterator, List, Optional, Sequence
 
 import jax
 
@@ -28,12 +28,19 @@ class DefaultJaxLearner(
         iterator: Iterator[jax_types.Sample],
         logger: Optional[loggers.Logger] = None,
         counter: Optional[counting.Counter] = None,
+        num_sgd_steps_per_step: int = 1,
+        postprocess_aux: Optional[Callable[[Any], Any]] = None,
     ) -> None:
         self._learner_core = learner_core
         self._iterator = iterator
         self._state = self._learner_core.init(key)
 
-        self._sgd_step = jax.jit(self._learner_core.step)
+        update_step = jax_utils.process_multiple_batches(
+            self._learner_core.step,
+            num_sgd_steps_per_step,
+            postprocess_aux=postprocess_aux,
+        )
+        self._update_step = jax.jit(update_step)
 
         self._logger = logger or loggers.make_default_logger(
             "learner", asynchronous=True, serialize_fn=jax_utils.fetch_devicearray
@@ -44,7 +51,7 @@ class DefaultJaxLearner(
 
     def step(self):
         sample = next(self._iterator)
-        self._state, metrics = self._sgd_step(self._state, sample)
+        self._state, metrics = self._update_step(self._state, sample)
 
         # Compute elapsed time.
         timestamp = time.time()

@@ -65,7 +65,7 @@ def main(_):
         raise NotImplementedError
 
     dataset_name = f"{env_name}-{config['dataset']}-v2"
-    env = d4rl_utils.make_environment(eval_env_name, seed)
+    env = d4rl_utils.load_d4rl_environment(eval_env_name, seed)
 
     K = config.K
     batch_size = config.batch_size
