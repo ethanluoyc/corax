@@ -3,7 +3,7 @@ import tensorflow as tf
 from absl.testing import absltest
 from absl.testing import parameterized
 
-from baselines.vd4rl import vd4rl_preprocessor
+from baselines.drq_bc import vd4rl_preprocessor
 
 _TRANSITION_TEST_CASES = [
     {

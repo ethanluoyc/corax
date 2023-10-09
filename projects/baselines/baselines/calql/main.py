@@ -1,23 +1,19 @@
-# type: ignore
 from typing import Iterator
 
-import absl.app
-import absl.flags
 import jax
 import jax.numpy as jnp
-import ml_collections
 import numpy as np
 import optax
 import reverb
 import tensorflow as tf
 import tree
+from absl import app
+from absl import flags
 from ml_collections import config_flags
 
 import corax
-from baselines import d4rl_evaluation
 from baselines import d4rl_utils
 from baselines import experiment_utils
-from corax import datasets as acme_datasets
 from corax import specs
 from corax import types
 from corax.adders import reverb as adders_reverb
@@ -25,56 +21,16 @@ from corax.agents.jax import actor_core
 from corax.agents.jax import actors
 from corax.agents.jax import calql
 from corax.agents.jax.calql.adder import SparseReward
+from corax.datasets import reverb as reverb_datasets
 from corax.datasets import tfds
+from corax.jax import types as jax_types
 from corax.jax import utils as jax_utils
 from corax.jax import variable_utils
 from corax.utils import counting
 from corax.utils import loggers
 
-
-def _get_config():
-    config = ml_collections.ConfigDict()
-    config.dataset_name = "antmaze-medium-diverse-v2"
-    config.seed = 0
-    config.log_to_wandb = False
-
-    config.policy_hidden_sizes = (256, 256)
-    config.critic_hidden_sizes = (256, 256, 256, 256)
-
-    config.policy_lr = 1e-4
-    config.qf_lr = 3e-4
-    config.batch_size = 256
-
-    config.discount = 0.99
-
-    config.reward_scale = 10.0
-    config.reward_bias = -5
-
-    config.initial_num_steps = 5000
-
-    config.enable_calql = True
-    config.cql_config = dict(
-        cql_lagrange_threshold=0.8,
-        cql_num_samples=10,
-        max_target_backup=True,
-        tau=5e-3,
-    )
-
-    # Offline training config
-    config.offline_num_steps = int(1e6)
-    config.offline_eval_every = int(5e4)
-    config.offline_num_eval_episodes = 20
-
-    # Offline training config
-    config.mixing_ratio = 0.5
-    config.online_utd_ratio = 1
-    config.online_num_steps = int(1e6)
-    config.online_eval_every = 2000
-    config.online_num_eval_episodes = 20
-    return config
-
-
-_CONFIG = config_flags.DEFINE_config_dict("config", _get_config(), lock_config=False)
+_CONFIG = config_flags.DEFINE_config_file("config", None, lock_config=False)
+flags.mark_flag_as_required("config")
 
 
 @tf.function
@@ -109,7 +65,7 @@ def preprocess_episode(episode, negative_reward, reward_scale, reward_bias, gamm
     gamma = tf.convert_to_tensor(gamma, dtype=rewards.dtype)
 
     if tf.reduce_all(rewards == reward_negative):
-        return_to_go = tf.ones_like(rewards) * (reward_negative / (1 - gamma))
+        return_to_go = tf.ones_like(rewards) * (reward_negative / (1 - gamma))  # type: ignore
     else:
         return_to_go = compute_return_to_go(rewards, discounts, gamma)
 
@@ -141,8 +97,7 @@ def get_transitions_dataset(
     return transitions
 
 
-def main(argv):
-    del argv
+def main(_):
     config = _CONFIG.value
 
     logger_factory = experiment_utils.LoggerFactory(
@@ -164,7 +119,7 @@ def main(argv):
         config.discount,
     )
 
-    env = d4rl_utils.make_environment(config.dataset_name, config.seed)
+    env = d4rl_utils.load_d4rl_environment(config.dataset_name, config.seed)
     env_spec = corax.make_environment_spec(env)
 
     networks = calql.make_networks(
@@ -187,7 +142,7 @@ def main(argv):
 
     def make_offline_learner(
         networks: calql.CQLNetworks,
-        random_key: jax.random.PRNGKeyArray,
+        random_key: jax_types.PRNGKey,
         dataset: Iterator[types.Transition],
         env_spec: specs.EnvironmentSpec,
         logger: loggers.Logger,
@@ -222,44 +177,50 @@ def main(argv):
             per_episode_update=True,
         )
 
-    def make_online_iterator(replay_client: reverb.Client):
+    def make_online_iterator(
+        replay_client: reverb.Client,
+    ) -> Iterator[types.Transition]:
         # mix offline and online buffer
         assert config.mixing_ratio >= 0.0
         online_batch_size = int(config.mixing_ratio * config.batch_size)
         offline_batch_size = config.batch_size - online_batch_size
         offline_iterator = make_offline_iterator(offline_batch_size)
 
-        online_dataset = acme_datasets.make_reverb_dataset(
-            table="priority_table",
+        online_dataset: Iterator[
+            reverb.ReplaySample
+        ] = reverb_datasets.make_reverb_dataset(
             server_address=replay_client.server_address,
+            table=adders_reverb.DEFAULT_PRIORITY_TABLE,
             num_parallel_calls=4,
             batch_size=online_batch_size,
             prefetch_size=1,
-        ).as_numpy_iterator()
+        ).as_numpy_iterator()  # type: ignore
 
         while True:
             offline_batch = next(offline_iterator)
-            offline_transitions = jax.device_put(offline_batch)
-            online_transitions = jax.device_put(next(online_dataset).data)
+            offline_transitions: types.Transition = jax.device_put(offline_batch)
+            online_transitions: types.Transition = jax.device_put(
+                next(online_dataset).data
+            )
 
             yield tree.map_structure(
                 lambda x, y: jnp.concatenate([x, y]),
                 offline_transitions,
-                online_transitions,
+                online_transitions,  # type: ignore
             )
 
-    def make_evaluator(random_key, learner):
-        return d4rl_evaluation.D4RLEvaluator(
+    def make_evaluator(random_key: jax_types.PRNGKey, learner: corax.Learner):
+        return d4rl_utils.D4RLEvaluator(
             lambda: env,
             make_actor(eval_policy, random_key, learner),
             logger=evaluator_logger,
             counter=evaluator_counter,
         )
 
-    def make_replay_tables(env_spec):
+    def make_replay_tables(env_spec: specs.EnvironmentSpec):
         return [
             reverb.Table(
-                name="priority_table",
+                name=adders_reverb.DEFAULT_PRIORITY_TABLE,
                 sampler=reverb.selectors.Uniform(),
                 remover=reverb.selectors.Fifo(),
                 # Do not limit the size of the table.
@@ -268,8 +229,8 @@ def main(argv):
                 signature=adders_reverb.NStepTransitionAdder.signature(
                     env_spec,
                     extras_spec={
-                        "mc_return": tf.TensorSpec(shape=(), dtype=tf.float32)
-                    },  # type: ignore
+                        "mc_return": tf.TensorSpec(shape=(), dtype=tf.float32)  # type: ignore
+                    },
                 ),
             )
         ]
@@ -316,7 +277,7 @@ def main(argv):
     replay_server = reverb.Server(reverb_tables, port=None)
     replay_client = replay_server.localhost_client()
 
-    train_env = d4rl_utils.make_environment(config.dataset_name, config.seed)
+    train_env = d4rl_utils.load_d4rl_environment(config.dataset_name, config.seed)
     online_counter = counting.Counter(parent_counter, "actor", time_delta=0.0)
     online_logger = logger_factory("actor", online_counter.get_steps_key(), 0)
 
@@ -388,4 +349,4 @@ def main(argv):
 
 
 if __name__ == "__main__":
-    absl.app.run(main)
+    app.run(main)

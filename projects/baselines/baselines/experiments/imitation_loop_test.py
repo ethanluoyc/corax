@@ -1,7 +1,7 @@
 import numpy as np
 from absl.testing import absltest
 
-from baselines.imitation import imitation_loop
+from baselines.experiments import imitation_loop
 from corax import specs
 from corax.testing import fakes
 

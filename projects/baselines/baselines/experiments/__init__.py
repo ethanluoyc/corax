@@ -24,5 +24,9 @@ from baselines.experiments.config import OfflineExperimentConfig
 from baselines.experiments.config import PolicyFactory
 from baselines.experiments.config import default_evaluator_factory
 from baselines.experiments.config import make_policy
+from baselines.experiments.imitation_experiment import ImitationExperimentConfig
+from baselines.experiments.imitation_experiment import run_imitation_experiment
+from baselines.experiments.imitation_loop import EpisodeRewarder
+from baselines.experiments.imitation_loop import ImitationEnvironmentLoop
 from baselines.experiments.run_experiment import run_experiment
 from baselines.experiments.run_offline_experiment import run_offline_experiment

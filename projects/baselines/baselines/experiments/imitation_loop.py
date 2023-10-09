@@ -1,3 +1,4 @@
+# type: ignore
 """A training loop for IL agent."""
 import operator
 import time

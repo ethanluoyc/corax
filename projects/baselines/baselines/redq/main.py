@@ -6,10 +6,12 @@ import jax
 import optax
 import reverb
 from absl import app
+from absl import flags
 from ml_collections import config_flags
 
 import corax
 from baselines import experiment_utils
+from baselines.redq.config import Config
 from corax import adders as adders_lib
 from corax import environment_loop
 from corax import specs
@@ -212,29 +214,8 @@ def make_environment(suite, task, seed):
     return environment
 
 
-@dataclasses.dataclass
-class Config:
-    env_name: str = "gymnasium:HalfCheetah-v4"
-    max_num_actor_steps: int = int(1e6)
-    num_eval_episodes: int = 10
-    eval_every: int = 10000
-    hidden_dims = (256, 256)
-    seed: int = 0
-
-    policy_lr: float = 3e-4
-    critic_lr: float = 3e-4
-    temperature_lr: float = 3e-4
-
-    batch_size: int = 256
-    max_replay_size: int = int(1e6)
-    min_replay_size: int = 5000
-    utd_ratio: int = 1
-    discount: float = 0.99
-
-    log_to_wandb: bool = False
-
-
-_CONFIG = config_flags.DEFINE_config_dataclass("config", Config())
+_CONFIG = config_flags.DEFINE_config_file("config", None)
+flags.mark_flag_as_required("config")
 
 
 def main(_):

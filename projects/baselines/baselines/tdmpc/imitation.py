@@ -21,7 +21,6 @@ from ml_collections import config_flags
 
 from baselines import experiment_utils
 from baselines import experiments
-from baselines.imitation import imitation_experiment
 from baselines.tdmpc import rewarder as rewarder_lib
 from corax import types
 from corax.agents.jax import tdmpc
@@ -246,9 +245,7 @@ def make_experiment_config(config):
         logger_factory=logger_factory,
         checkpointing=None,
     )
-    return imitation_experiment.ImitationExperimentConfig(
-        online_experiment, rewarder_factory
-    )
+    return experiments.ImitationExperimentConfig(online_experiment, rewarder_factory)
 
 
 def main(_):
@@ -256,7 +253,7 @@ def main(_):
     config = _CONFIG.value
     logging.info("Config:\n%s", config)
     experiment_config = make_experiment_config(config)
-    imitation_experiment.run_imitation_experiment(
+    experiments.run_imitation_experiment(
         experiment_config,
         eval_every=config.eval_freq,
         num_eval_episodes=config.eval_episodes,

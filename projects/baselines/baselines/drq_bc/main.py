@@ -1,3 +1,8 @@
+import os
+
+os.environ["MUJOCO_GL"] = "egl"
+
+# ruff: noqa: E402
 import dm_env_wrappers
 import jax
 import numpy as np
@@ -9,8 +14,8 @@ from absl import app
 from dm_control import suite
 
 import corax
-from baselines.vd4rl import drq_frame_stacking
-from baselines.vd4rl import vd4rl_preprocessor
+from baselines.drq_bc import drq_frame_stacking
+from baselines.drq_bc import vd4rl_preprocessor
 from corax import types
 from corax.agents.jax import actor_core as actor_core_lib
 from corax.agents.jax import actors

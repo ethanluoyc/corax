@@ -11,9 +11,9 @@ import corax
 from baselines import experiments
 from baselines.experiments import config
 from baselines.experiments import savers
+from baselines.experiments.imitation import imitation_loop
 from baselines.experiments.run_experiment import _disable_insert_blocking
 from baselines.experiments.run_experiment import _LearningActor
-from baselines.imitation import imitation_loop
 from corax import specs as env_specs
 from corax.jax import utils
 from corax.utils import counting

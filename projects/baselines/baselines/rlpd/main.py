@@ -9,47 +9,12 @@ from baselines import experiments
 from corax.agents.jax import redq
 from corax.datasets import tfds
 
-_WORKDIR = flags.DEFINE_string("workdir", "/tmp/rlpd", "")
-
-
-def _get_config():
-    import ml_collections
-
-    config = ml_collections.ConfigDict()
-    config.actor_lr = 3e-4
-    config.critic_lr = 3e-4
-
-    config.hidden_dims = (256, 256)
-    config.num_qs = 10
-    config.num_min_qs = 2
-
-    config.discount = 0.99
-
-    config.tau = 0.005
-
-    config.temp_lr = 3e-4
-
-    config.init_temperature = 1.0
-    config.backup_entropy = True
-    config.critic_layer_norm = True
-
-    config.log_to_wandb = False
-    config.env_name = "halfcheetah-expert-v2"
-    config.offline_ratio = 0.5
-    config.seed = 42
-    config.eval_episodes = 10
-    config.eval_interval = 10000
-    config.batch_size = 256
-    config.max_steps = int(250000)
-    config.utd_ratio = 20
-    config.start_training = int(1e4)
-
-    return config
-
-
-_CONFIG = config_flags.DEFINE_config_dict(
-    "config", _get_config(), "File path to the training configuration."
+_CONFIG = config_flags.DEFINE_config_file(
+    "config", None, "File path to the training configuration."
 )
+flags.mark_flag_as_required("config")
+
+_WORKDIR = flags.DEFINE_string("workdir", None, "")
 
 
 def _get_demonstration_dataset_factory(name, seed):
