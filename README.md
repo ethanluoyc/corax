@@ -26,9 +26,20 @@ You can install Corax with
 pip install 'git+https://github.com/ethanluoyc/corax#egg=corax[tf,jax]'
 ```
 
-Note that to run Corax with GPU, you need to install JAX with GPU support. Follow
-the instructions [here](https://jax.readthedocs.io/en/latest/installation.html) for how
-to install JAX with GPU support.
+To use Corax with GPU, you need to install JAX with GPU support. Follow the instructions
+[here](https://jax.readthedocs.io/en/latest/installation.html) for how to install JAX
+with GPU support.
+
+*Note on TensorFlow dependency: The base corax package does not depend on specific deep
+learning frameworks. However, the JAX agent depends on TensorFlow for efficient
+data-processing. We provide optional extras for installing `tensorflow-cpu` and
+compatible versions of [TensorFlow
+Probability](https://github.com/tensorflow/probability) and
+[Reverb](https://github.com/google-deepmind/reverb/tree/master). However, should that be
+incompatible with your own dependency requirements, you can optionally specify these
+dependencies yourself and opt-out our extras. Check out the
+[pyproject.toml](./pyproject.toml) for examples on how to specify compatible TensorFlow
+versions.*
 
 ## Examples
 Examples can be found in [projects](projects/).
