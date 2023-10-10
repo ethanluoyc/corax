@@ -18,9 +18,9 @@
 import jax
 
 import corax
-from baselines.experiments import config
-from baselines.experiments import savers
 from corax import specs
+from corax.jax.experiments import config
+from corax.jax.experiments import savers
 from corax.utils import counting
 
 

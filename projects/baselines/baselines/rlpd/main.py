@@ -5,9 +5,9 @@ from ml_collections import config_flags
 
 from baselines import d4rl_utils
 from baselines import experiment_utils
-from baselines import experiments
 from corax.agents.jax import redq
 from corax.datasets import tfds
+from corax.jax import experiments
 
 _CONFIG = config_flags.DEFINE_config_file(
     "config", None, "File path to the training configuration."

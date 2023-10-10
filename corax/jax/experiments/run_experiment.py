@@ -24,12 +24,12 @@ import jax
 import reverb
 
 import corax
-from baselines.experiments import config
-from baselines.experiments import savers
 from corax import core
 from corax import specs
 from corax import types
 from corax.jax import utils
+from corax.jax.experiments import config
+from corax.jax.experiments import savers
 from corax.utils import counting
 
 

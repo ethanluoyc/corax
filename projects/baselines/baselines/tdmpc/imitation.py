@@ -20,10 +20,10 @@ from absl import logging
 from ml_collections import config_flags
 
 from baselines import experiment_utils
-from baselines import experiments
 from baselines.tdmpc import rewarder as rewarder_lib
 from corax import types
 from corax.agents.jax import tdmpc
+from corax.jax import experiments
 from corax.jax import variable_utils
 
 os.environ["MUJOCO_GL"] = "egl"

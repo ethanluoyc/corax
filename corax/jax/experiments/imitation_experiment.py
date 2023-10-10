@@ -8,14 +8,14 @@ import jax
 import reverb
 
 import corax
-from baselines import experiments
-from baselines.experiments import config
-from baselines.experiments import imitation_loop
-from baselines.experiments import savers
-from baselines.experiments.run_experiment import _disable_insert_blocking
-from baselines.experiments.run_experiment import _LearningActor
 from corax import specs as env_specs
+from corax.jax import experiments
 from corax.jax import utils
+from corax.jax.experiments import config
+from corax.jax.experiments import imitation_loop
+from corax.jax.experiments import savers
+from corax.jax.experiments.run_experiment import _disable_insert_blocking
+from corax.jax.experiments.run_experiment import _LearningActor
 from corax.utils import counting
 
 Config = experiments.ExperimentConfig
