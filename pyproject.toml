@@ -54,7 +54,7 @@ test = [
   "ott-jax",
   "dm-control",
 ]
-dev = ["corax[test]", "black", "ruff"]
+dev = ["corax[test]", "black", "ruff", "pre-commit"]
 
 [tool.hatch.build]
 directory = "dist"
