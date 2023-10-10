@@ -10,8 +10,8 @@ import reverb
 import corax
 from baselines import experiments
 from baselines.experiments import config
+from baselines.experiments import imitation_loop
 from baselines.experiments import savers
-from baselines.experiments.imitation import imitation_loop
 from baselines.experiments.run_experiment import _disable_insert_blocking
 from baselines.experiments.run_experiment import _LearningActor
 from corax import specs as env_specs
