@@ -23,10 +23,10 @@ source = "vcs"
 [project.optional-dependencies]
 tf = [
   # TF dependencies
-  "tensorflow-cpu~=2.14.0",
-  "tensorflow-probability~=0.22.0",
+  "tensorflow-cpu~=2.13.0",
+  "tensorflow-probability~=0.21.0",
   "tensorflow-datasets~=4.9.3",
-  "dm-reverb~=0.13.0",
+  "dm-reverb~=0.12.0",
   "rlds",
 ]
 jax = [
@@ -43,8 +43,8 @@ all = ["corax[tf,jax]"]
 test = [
   "corax[all]",
   "pytest",
-  "dill",           # required for tfds tests
   "pytest-xdist",
+  "dill",           # required for tfds tests
   "wandb",
   "ml-collections",
   "scipy>=1.6.0",
