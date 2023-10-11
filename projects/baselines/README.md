@@ -13,6 +13,11 @@ by running
 pip install -r requirements.txt -e .
 ```
 
+Then you can run a baseline as follows:
+```bash
+python -m baselines.iql.main --config baselines/iql/configs/mujoco.py
+```
+
 ## Running with Singularity
 For production experiments on a cluster, we recommend using Singularity containers.
 You can create a Singularity container that installs all of the runtime dependencies by
@@ -27,6 +32,11 @@ Then you can spawn a shell and run the examples in the package using the singula
 ```bash
 # Create a shell and add corax and baselines to PYTHONPATH
 singularity shell --nv --env PYTHONPATH=$PWD:$PWD/../../ cluster/corax-latest.sif
+```
+
+Then you can run a baseline as follows:
+```bash
+python -m baselines.iql.main --config baselines/iql/configs/mujoco.py
 ```
 
 ## Launching with LXM3
