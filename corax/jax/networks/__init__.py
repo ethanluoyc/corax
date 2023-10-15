@@ -2,7 +2,9 @@ from corax.jax.networks.base import Action
 from corax.jax.networks.base import BatchSize
 from corax.jax.networks.base import FeedForwardNetwork
 from corax.jax.networks.base import Logits
+from corax.jax.networks.base import LogProb
 from corax.jax.networks.base import LogProbFn
+from corax.jax.networks.base import NetworkOutput
 from corax.jax.networks.base import Observation
 from corax.jax.networks.base import Params
 from corax.jax.networks.base import PRNGKey
