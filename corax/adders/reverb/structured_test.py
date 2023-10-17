@@ -28,7 +28,6 @@ from corax.adders.reverb import sequence as adders
 from corax.adders.reverb import structured
 from corax.adders.reverb import test_cases
 from corax.adders.reverb import test_utils
-from corax.utils import tree_utils
 
 
 class StructuredAdderTest(test_utils.AdderTestMixin, parameterized.TestCase):
@@ -105,26 +104,6 @@ class StructuredAdderTest(test_utils.AdderTestMixin, parameterized.TestCase):
         env_spec, extras_spec = test_utils.get_specs(steps[0])
         step_spec = structured.create_step_spec(env_spec, extras_spec)
 
-        def _as_n_step_transition(flat_trajectory):
-            trajectory = tree.unflatten_as(step_spec, flat_trajectory)
-
-            rewards, discount = _compute_cumulative_quantities(
-                rewards=trajectory.reward,
-                discounts=trajectory.discount,
-                additional_discount=additional_discount,
-                n_step=tree.flatten(trajectory.reward)[0].shape[0],
-            )
-
-            tmap = tree.map_structure
-            return types.Transition(
-                observation=tmap(lambda x: x[0], trajectory.observation),
-                action=tmap(lambda x: x[0], trajectory.action),
-                reward=rewards,
-                discount=discount,
-                next_observation=tmap(lambda x: x[-1], trajectory.observation),
-                extras=tmap(lambda x: x[0], trajectory.extras),
-            )
-
         configs = structured.create_n_step_transition_config(
             step_spec=step_spec, n_step=n_step
         )
@@ -136,67 +115,19 @@ class StructuredAdderTest(test_utils.AdderTestMixin, parameterized.TestCase):
             step_spec=step_spec,
         )
 
+        def n_step_from_trajectory(trajectory: Sequence[types.Transition]):
+            trajectory = tree.unflatten_as(step_spec, trajectory)
+            return structured.n_step_from_trajectory(trajectory, additional_discount)
+
         super().run_test_adder(
             adder=adder,
             first=first,
             steps=steps,
             expected_items=expected_transitions,
             stack_sequence_fields=False,
-            item_transform=_as_n_step_transition,
+            item_transform=n_step_from_trajectory,
             signature=sw.infer_signature(configs, step_spec),
         )
-
-
-def _compute_cumulative_quantities(
-    rewards: types.NestedArray,
-    discounts: types.NestedArray,
-    additional_discount: float,
-    n_step: int,
-):
-    """Stolen from TransitionAdder."""
-
-    # Give the same tree structure to the n-step return accumulator,
-    # n-step discount accumulator, and self.discount, so that they can be
-    # iterated in parallel using tree.map_structure.
-    rewards, discounts, self_discount = tree_utils.broadcast_structures(
-        rewards, discounts, additional_discount
-    )
-    flat_rewards = tree.flatten(rewards)
-    flat_discounts = tree.flatten(discounts)
-    flat_self_discount = tree.flatten(self_discount)
-
-    # Copy total_discount as it is otherwise read-only.
-    total_discount = [np.copy(a[0]) for a in flat_discounts]
-
-    # Broadcast n_step_return to have the broadcasted shape of
-    # reward * discount.
-    n_step_return = [
-        np.copy(np.broadcast_to(r[0], np.broadcast(r[0], d).shape))
-        for r, d in zip(flat_rewards, total_discount)
-    ]
-
-    # NOTE: total_discount will have one less self_discount applied to it than
-    # the value of self._n_step. This is so that when the learner/update uses
-    # an additional discount we don't apply it twice. Inside the following loop
-    # we will apply this right before summing up the n_step_return.
-    for i in range(1, n_step):
-        for nsr, td, r, d, sd in zip(
-            n_step_return,
-            total_discount,
-            flat_rewards,
-            flat_discounts,
-            flat_self_discount,
-        ):
-            # Equivalent to: `total_discount *= self._discount`.
-            td *= sd
-            # Equivalent to: `n_step_return += reward[i] * total_discount`.
-            nsr += r[i] * td
-            # Equivalent to: `total_discount *= discount[i]`.
-            td *= d[i]
-
-    n_step_return = tree.unflatten_as(rewards, n_step_return)
-    total_discount = tree.unflatten_as(rewards, total_discount)
-    return n_step_return, total_discount
 
 
 if __name__ == "__main__":

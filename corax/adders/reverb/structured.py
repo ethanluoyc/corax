@@ -31,6 +31,7 @@ from corax import types
 from corax.adders import base as adders_base
 from corax.adders.reverb import base as reverb_base
 from corax.adders.reverb import sequence as sequence_adder
+from corax.utils import tree_utils
 
 Step = reverb_base.Step
 Trajectory = reverb_base.Trajectory
@@ -170,8 +171,8 @@ class StructuredAdder(adders_base.Adder):
 
         # Add the timestep to the buffer.
         has_extras = (
-            len(extras) > 0
-            if isinstance(extras, Sized)  # pylint: disable=g-explicit-length-test
+            len(extras) > 0  # pylint: disable=g-explicit-length-test
+            if isinstance(extras, Sized)
             else extras is not None
         )
 
@@ -246,8 +247,8 @@ def create_sequence_config(
       end_of_episode_behavior: Determines how sequences at the end of the episode
         are handled (default `EndOfEpisodeBehavior.TRUNCATE`). See the docstring
         of `EndOfEpisodeBehavior` for more information.
-      sequence_pattern: Transformation to obtain a sequence given the length
-        and the shape of the step.
+      sequence_pattern: Transformation to obtain a sequence given the length and
+        the shape of the step.
 
     Returns:
       A list of configs for `StructuredAdder` to produce the described behaviour.
@@ -366,7 +367,9 @@ def create_sequence_config(
 
 
 def create_n_step_transition_config(
-    step_spec: Step, n_step: int, table: str = reverb_base.DEFAULT_PRIORITY_TABLE
+    step_spec: Step,
+    n_step: int,
+    table: str = reverb_base.DEFAULT_PRIORITY_TABLE,
 ) -> List[sw.Config]:
     """Generates configs that replicates the behaviour of NStepTransitionAdder.
 
@@ -448,3 +451,88 @@ def create_n_step_transition_config(
         end_of_episode_configs.append(config)
 
     return start_of_episode_configs + [base_config] + end_of_episode_configs
+
+
+def n_step_from_trajectory(
+    trajectory: reverb_base.Trajectory,
+    agent_discount: float,
+) -> types.Transition:
+    """Converts an (n+1)-step trajectory into an n-step transition."""
+
+    rewards, discount = _compute_cumulative_quantities(
+        rewards=trajectory.reward,
+        discounts=trajectory.discount,
+        additional_discount=agent_discount,
+    )
+
+    tmap = tree.map_structure
+    return types.Transition(
+        observation=tmap(lambda x: x[0], trajectory.observation),
+        action=tmap(lambda x: x[0], trajectory.action),
+        reward=rewards,
+        discount=discount,
+        next_observation=tmap(lambda x: x[-1], trajectory.observation),
+        extras=tmap(lambda x: x[0], trajectory.extras),
+    )
+
+
+def _compute_cumulative_quantities(
+    rewards: types.NestedArray,
+    discounts: types.NestedArray,
+    additional_discount: float,
+):
+    """Stolen from TransitionAdder."""
+
+    # Give the same tree structure to the n-step return accumulator,
+    # n-step discount accumulator, and self.discount, so that they can be
+    # iterated in parallel using tree.map_structure.
+    rewards, discounts = tree_utils.broadcast_structures(rewards, discounts)
+    flat_rewards = tree.flatten(rewards)
+    flat_discounts = tree.flatten(discounts)
+    n_step = tf.shape(flat_rewards[0])[0]
+    # Initialize flat output containers.
+    flat_total_discounts = []
+    flat_n_step_returns = []
+
+    def scan_body(
+        state: types.NestedTensor,
+        discount_and_reward: types.NestedTensor,
+    ) -> types.NestedTensor:
+        compound_discount, discounted_return = state
+        discount, reward = discount_and_reward
+        return (
+            additional_discount * discount * compound_discount,
+            discounted_return + additional_discount * compound_discount * reward,
+        )
+
+    for reward, discount in zip(flat_rewards, flat_discounts):
+        shape = tf.broadcast_static_shape(
+            tf.TensorShape(reward[0].shape),
+            tf.TensorShape(discount[0].shape),
+        )
+        total_discount = discount[0]
+        n_step_return = tf.broadcast_to(reward[0], shape)
+
+        if n_step > 1:
+            # NOTE: total_discount will have one less additional_discount applied to
+            # it (compared to flat_discount). This is so that when the learner/update
+            # uses an additional discount we don't apply it twice. Inside the
+            # following loop we will apply this right before summing up the
+            # n_step_return.
+            total_discount, n_step_return = tf.scan(
+                scan_body,
+                (discount[1:], reward[1:]),
+                (total_discount, n_step_return),
+            )
+
+            # Add the last return and discount of the scan, which correspond to the
+            # n-step return and environment discount.
+            n_step_return = n_step_return[-1]
+            total_discount = total_discount[-1]
+
+        flat_n_step_returns.append(n_step_return)
+        flat_total_discounts.append(total_discount)
+
+    n_step_return = tree.unflatten_as(rewards, flat_n_step_returns)
+    total_discount = tree.unflatten_as(rewards, flat_total_discounts)
+    return n_step_return, total_discount

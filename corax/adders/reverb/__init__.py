@@ -11,4 +11,5 @@ from corax.adders.reverb.sequence import SequenceAdder
 from corax.adders.reverb.structured import StructuredAdder
 from corax.adders.reverb.structured import create_n_step_transition_config
 from corax.adders.reverb.structured import create_step_spec
+from corax.adders.reverb.structured import n_step_from_trajectory
 from corax.adders.reverb.transition import NStepTransitionAdder
