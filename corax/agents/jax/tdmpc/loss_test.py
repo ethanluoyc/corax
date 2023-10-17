@@ -1,8 +1,8 @@
+from absl.testing import absltest
 import jax
 import jax.numpy as jnp
 import optax
 import reverb
-from absl.testing import absltest
 
 from corax import specs
 from corax.adders import reverb as adders_reverb

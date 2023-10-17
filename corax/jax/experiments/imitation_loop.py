@@ -5,10 +5,10 @@ import time
 from typing import List, Optional, Protocol, Sequence
 
 import dm_env
+from dm_env import specs
 import jax.numpy as jnp
 import numpy as np
 import tree
-from dm_env import specs
 
 from corax import adders
 from corax import core

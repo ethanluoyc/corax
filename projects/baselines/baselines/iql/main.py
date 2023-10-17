@@ -1,7 +1,7 @@
-import jax
 from absl import app
 from absl import flags
 from absl import logging
+import jax
 from ml_collections import config_flags
 
 from baselines.iql import base_config

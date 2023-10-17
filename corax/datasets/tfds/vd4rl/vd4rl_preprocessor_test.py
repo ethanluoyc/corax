@@ -1,7 +1,7 @@
-import numpy as np
-import tensorflow as tf
 from absl.testing import absltest
 from absl.testing import parameterized
+import numpy as np
+import tensorflow as tf
 
 from corax.datasets.tfds.vd4rl import vd4rl_preprocessor
 

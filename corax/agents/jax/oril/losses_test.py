@@ -1,9 +1,9 @@
 # type: ignore
 """Tests for ORIL loss functions."""
+from absl.testing import absltest
 import jax
 import jax.numpy as jnp
 import tree
-from absl.testing import absltest
 
 from corax import types
 from corax.agents.jax.oril import losses

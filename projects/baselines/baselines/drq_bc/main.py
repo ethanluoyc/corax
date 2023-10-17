@@ -3,6 +3,8 @@ import os
 os.environ["MUJOCO_GL"] = "egl"
 
 # ruff: noqa: E402
+from absl import app
+from dm_control import suite
 import dm_env_wrappers
 import jax
 import numpy as np
@@ -10,12 +12,10 @@ import optax
 import reverb
 import tensorflow as tf
 import tensorflow_datasets as tfds
-from absl import app
-from dm_control import suite
 
-import corax
 from baselines.drq_bc import drq_frame_stacking
 from baselines.drq_bc import vd4rl_preprocessor
+import corax
 from corax import types
 from corax.agents.jax import actor_core as actor_core_lib
 from corax.agents.jax import actors

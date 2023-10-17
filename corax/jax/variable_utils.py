@@ -15,9 +15,9 @@
 
 """Variable utilities for JAX."""
 
+from concurrent import futures
 import datetime
 import time
-from concurrent import futures
 from typing import List, NamedTuple, Optional, Sequence, Union
 
 import jax

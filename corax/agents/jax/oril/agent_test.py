@@ -1,7 +1,7 @@
 """Tests for ORIL agent."""
+from absl.testing import absltest
 import jax
 import optax
-from absl.testing import absltest
 
 from corax import specs
 from corax.agents.jax import iql

@@ -16,12 +16,12 @@
 
 from typing import Any, Callable, Optional, Sequence, Tuple, TypeVar, Union
 
+from absl.testing import absltest
 import dm_env
 import numpy as np
 import reverb
 import tensorflow as tf
 import tree
-from absl.testing import absltest
 
 from corax import specs
 from corax import types

@@ -1,11 +1,11 @@
 import re
 from typing import Callable, Tuple
 
+from absl import logging
+from d4rl import infos as d4rl_info
 import dm_env
 import dm_env_wrappers
 import numpy as np
-from absl import logging
-from d4rl import infos as d4rl_info
 
 import corax
 from corax.utils import counting

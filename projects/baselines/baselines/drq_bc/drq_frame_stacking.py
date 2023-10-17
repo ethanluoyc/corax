@@ -23,10 +23,10 @@ This is consistent with the frame stacking used in DrQV2
 import collections
 
 import dm_env
+from dm_env import specs as dm_env_specs
 import dm_env_wrappers
 import numpy as np
 import tree
-from dm_env import specs as dm_env_specs
 
 from corax import types
 

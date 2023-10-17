@@ -1,9 +1,9 @@
 import unittest
 
-import dm_env_wrappers
-import numpy as np
 from absl.testing import absltest
 from dm_env import specs as env_specs
+import dm_env_wrappers
+import numpy as np
 
 from corax import specs
 from corax.agents.jax import drq_v2

@@ -4,9 +4,9 @@ import dataclasses
 from typing import Callable, Optional, Sequence, Tuple
 
 import haiku as hk
+from jax import nn
 import jax.numpy as jnp
 import numpy as onp
-from jax import nn
 from tensorflow_probability.substrates import jax as tfp  # type: ignore
 
 from corax import specs

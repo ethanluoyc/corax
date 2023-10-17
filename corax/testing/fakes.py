@@ -25,9 +25,9 @@ from typing import Callable, Iterator, List, Mapping, Optional, Sequence
 import dm_env
 import numpy as np
 import reverb
+from rlds import rlds_types
 import tensorflow as tf
 import tree
-from rlds import rlds_types
 
 from corax import core
 from corax import specs

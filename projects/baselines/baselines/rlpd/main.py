@@ -1,6 +1,6 @@
-import jax
 from absl import app
 from absl import flags
+import jax
 from ml_collections import config_flags
 
 from baselines import d4rl_utils

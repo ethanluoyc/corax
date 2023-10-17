@@ -16,12 +16,12 @@
 
 from typing import Sequence
 
-import dm_env
-import numpy as np
-import tree
 from absl.testing import absltest
 from absl.testing import parameterized
+import dm_env
+import numpy as np
 from reverb import structured_writer as sw
+import tree
 
 from corax import types
 from corax.adders.reverb import sequence as adders

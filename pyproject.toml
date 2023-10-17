@@ -94,6 +94,7 @@ exclude = ["third_party", ".venv"]
 [tool.ruff.isort]
 known-first-party = ["corax", "baselines"]
 force-single-line = true
+force-sort-within-sections = true
 single-line-exclusions = ["typing"]
 
 [tool.ruff.flake8-tidy-imports]

@@ -7,17 +7,17 @@ import copy
 import functools
 import os
 
+from absl import app
+from absl import flags
+from absl import logging
 import dm_env_wrappers as wrappers
+from ml_collections import config_flags
 import optax
 import rlax
 import rlds
 import tensorflow as tf
 import tensorflow_datasets as tfds
 import tree
-from absl import app
-from absl import flags
-from absl import logging
-from ml_collections import config_flags
 
 from baselines import experiment_utils
 from baselines.tdmpc import rewarder as rewarder_lib

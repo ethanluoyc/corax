@@ -7,8 +7,8 @@ import jax
 import jax.numpy as jnp
 import numpy as onp
 import ott
-import ott.geometry.costs
 from ott.geometry import pointcloud
+import ott.geometry.costs
 from ott.problems.linear import linear_problem
 from ott.solvers.linear import sinkhorn
 

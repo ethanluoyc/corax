@@ -1,17 +1,17 @@
 import dataclasses
 from typing import Any, Callable, Iterator, Optional
 
-import dm_env_wrappers
-import jax
-import optax
-import reverb
 from absl import app
 from absl import flags
+import dm_env_wrappers
+import jax
 from ml_collections import config_flags
+import optax
+import reverb
 
-import corax
 from baselines import experiment_utils
 from baselines.redq.config import Config
+import corax
 from corax import adders as adders_lib
 from corax import environment_loop
 from corax import specs

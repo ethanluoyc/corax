@@ -18,9 +18,9 @@ from typing import Any, Dict, Optional
 
 import dm_env
 import gym
+from gym import spaces
 import numpy as np
 import tree
-from gym import spaces
 
 from corax import specs
 from corax import types

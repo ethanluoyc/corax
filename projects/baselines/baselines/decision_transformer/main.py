@@ -1,12 +1,12 @@
-import jax
-import tensorflow as tf
 from absl import app
 from absl import flags
+import jax
 from ml_collections import config_flags
+import tensorflow as tf
 
-import corax
 from baselines import d4rl_utils
 from baselines import experiment_utils
+import corax
 from corax import environment_loop
 from corax.agents.jax import decision_transformer
 from corax.agents.jax.decision_transformer import dataset as dataset_lib

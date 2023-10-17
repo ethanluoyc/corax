@@ -1,19 +1,19 @@
 from typing import Iterator
 
+from absl import app
+from absl import flags
 import jax
 import jax.numpy as jnp
+from ml_collections import config_flags
 import numpy as np
 import optax
 import reverb
 import tensorflow as tf
 import tree
-from absl import app
-from absl import flags
-from ml_collections import config_flags
 
-import corax
 from baselines import d4rl_utils
 from baselines import experiment_utils
+import corax
 from corax import specs
 from corax import types
 from corax.adders import reverb as adders_reverb

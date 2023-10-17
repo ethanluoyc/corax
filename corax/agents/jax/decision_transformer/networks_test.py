@@ -1,9 +1,9 @@
 # type: ignore
+from absl.testing import absltest
 import chex
 import haiku as hk
 import jax
 import jax.numpy as jnp
-from absl.testing import absltest
 
 from corax.agents.jax.decision_transformer import networks
 

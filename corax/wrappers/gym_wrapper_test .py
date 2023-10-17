@@ -1,10 +1,10 @@
 # type: ignore
 """Tests for gymnasium_wrapper."""
 
-import gym
-import numpy as np
 from absl.testing import absltest
 from dm_env import specs
+import gym
+import numpy as np
 
 from corax.wrappers import gym_wrapper
 

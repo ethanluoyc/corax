@@ -18,13 +18,13 @@ import itertools
 import time
 from typing import Callable, List, Optional, Sequence, Sized
 
+from absl import logging
 import dm_env
 import numpy as np
 import reverb
+from reverb import structured_writer as sw
 import tensorflow as tf
 import tree
-from absl import logging
-from reverb import structured_writer as sw
 
 from corax import specs
 from corax import types

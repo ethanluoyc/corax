@@ -16,10 +16,10 @@
 
 import collections
 
-import dm_env
-import dm_env_wrappers
 from dm_control.rl import control
 from dm_control.suite.wrappers import pixels  # type: ignore
+import dm_env
+import dm_env_wrappers
 
 
 class MujocoPixelWrapper(dm_env_wrappers.EnvironmentWrapper):

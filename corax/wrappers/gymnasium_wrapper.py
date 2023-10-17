@@ -4,9 +4,9 @@ from typing import Any, Dict, Optional
 
 import dm_env
 import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 import tree
-from gymnasium import spaces
 
 from corax import specs
 from corax import types

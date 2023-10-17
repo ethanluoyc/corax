@@ -19,9 +19,9 @@ import time
 from typing import List, Optional, Sequence
 
 import dm_env
+from dm_env import specs
 import numpy as np
 import tree
-from dm_env import specs
 
 from corax import core
 from corax.utils import counting

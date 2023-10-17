@@ -1,9 +1,9 @@
 import functools
 
+from absl.testing import absltest
 import jax
 import numpy as onp
 import numpy.testing as np_test
-from absl.testing import absltest
 
 from corax import types
 from corax.agents.jax.otr import rewarder as ot_rewarder

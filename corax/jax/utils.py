@@ -30,13 +30,13 @@ from typing import (
     TypeVar,
 )
 
+from absl import logging
 import haiku as hk
 import jax
 import jax.numpy as jnp
 import numpy as np
 import reverb
 import tree
-from absl import logging
 
 from corax import core
 from corax import types

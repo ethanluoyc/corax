@@ -1,5 +1,5 @@
-import numpy as np
 from absl.testing import absltest
+import numpy as np
 
 from corax import specs
 from corax.jax.experiments import imitation_loop

@@ -21,8 +21,8 @@ import pickle
 import time
 from typing import Mapping, Optional, Union
 
-import tensorflow as tf
 from absl import logging
+import tensorflow as tf
 
 from corax import core
 from corax.utils import paths

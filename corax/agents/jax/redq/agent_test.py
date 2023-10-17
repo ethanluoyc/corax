@@ -1,8 +1,8 @@
 """Tests for the REDQ agent."""
 
+from absl.testing import absltest
 import jax
 import optax
-from absl.testing import absltest
 
 import corax
 from corax.agents.jax import redq

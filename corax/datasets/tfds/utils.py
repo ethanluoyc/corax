@@ -20,13 +20,13 @@ CHANGE: Fixes issues with inlining large dataset.
 import logging
 from typing import Any, Iterator, Optional, Sequence, Tuple
 
+from flax import jax_utils
 import jax
 import jax.numpy as jnp
 import numpy as np
 import rlds
 import tensorflow as tf
 import tensorflow_datasets as tfds
-from flax import jax_utils
 
 from corax import specs
 from corax import types

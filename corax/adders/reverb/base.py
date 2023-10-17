@@ -27,12 +27,12 @@ from typing import (
     Union,
 )
 
+from absl import logging
 import dm_env
 import numpy as np
 import reverb
 import tensorflow as tf
 import tree
-from absl import logging
 
 from corax import specs
 from corax import types

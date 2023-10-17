@@ -7,10 +7,10 @@ import jax
 import jax.numpy as jnp
 import numpy as onp
 import ott
-import ott.geometry.costs
-import tree
 from ott.geometry import pointcloud
+import ott.geometry.costs
 from ott.solvers.linear import sinkhorn
+import tree
 
 from corax import types
 from corax.jax import networks as networks_lib

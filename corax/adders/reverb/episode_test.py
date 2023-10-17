@@ -14,9 +14,9 @@
 
 """Tests for Episode adders."""
 
-import numpy as np
 from absl.testing import absltest
 from absl.testing import parameterized
+import numpy as np
 
 from corax.adders.reverb import episode as adders
 from corax.adders.reverb import test_utils

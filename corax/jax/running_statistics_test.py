@@ -18,12 +18,12 @@ import functools
 import math
 from typing import NamedTuple
 
+from absl.testing import absltest
 import jax
+from jax.config import config as jax_config  # type: ignore
 import jax.numpy as jnp
 import numpy as np
 import tree
-from absl.testing import absltest
-from jax.config import config as jax_config  # type: ignore
 
 from corax import specs
 from corax.jax import running_statistics

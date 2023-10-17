@@ -1,18 +1,18 @@
 import time
 from typing import Optional, Sequence
 
+from absl import logging
 import jax
 import numpy as np
 import optax
 import rlds
 import tensorflow as tf
-from absl import logging
 
-import corax
 from baselines import d4rl_utils
 from baselines import experiment_utils
 from baselines import rlds_utils
 from baselines.iql import base_config
+import corax
 from corax.agents.jax import actor_core
 from corax.agents.jax import actors as actors_lib
 from corax.agents.jax import iql

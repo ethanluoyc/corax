@@ -1,8 +1,8 @@
 """Tests for the REDQ agent."""
 
+from absl.testing import absltest
 import chex
 import jax
-from absl.testing import absltest
 
 import corax
 from corax.agents.jax.redq import networks as red_networks

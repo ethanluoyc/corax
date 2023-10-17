@@ -7,13 +7,13 @@ See configs/ for configurations for other environments.
 import functools
 import os
 
-import dm_env_wrappers
-import optax
-import tensorflow as tf
 from absl import app
 from absl import flags
 from absl import logging
+import dm_env_wrappers
 from ml_collections import config_flags
+import optax
+import tensorflow as tf
 
 from baselines import experiment_utils
 from corax.agents.jax import tdmpc

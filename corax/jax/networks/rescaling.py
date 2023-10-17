@@ -16,8 +16,8 @@
 
 import dataclasses
 
-import jax.numpy as jnp
 from jax import lax
+import jax.numpy as jnp
 
 from corax import specs
 
