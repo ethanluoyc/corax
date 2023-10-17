@@ -1,6 +1,6 @@
 """Learner component for DrQV2."""
 import time
-from typing import Iterator, NamedTuple, Optional
+from typing import Iterator, NamedTuple, Optional, Union
 
 import jax
 import jax.numpy as jnp
@@ -45,7 +45,7 @@ class DrQV2Learner(core.Learner):
         random_key: jax_types.PRNGKey,
         dataset: Iterator[reverb.ReplaySample],
         networks: drq_v2_networks.DrQV2Networks,
-        sigma_schedule: optax.Schedule,
+        sigma: Union[float, optax.Schedule],
         augmentation: augmentations.DataAugmentation,
         policy_optimizer: optax.GradientTransformation,
         critic_optimizer: optax.GradientTransformation,
@@ -59,6 +59,11 @@ class DrQV2Learner(core.Learner):
         counter: Optional[counting.Counter] = None,
         logger: Optional[loggers.Logger] = None,
     ):
+        if callable(sigma):
+            sigma_schedule = sigma
+        else:
+            sigma_schedule = optax.constant_schedule(sigma)
+
         def critic_loss_fn(
             critic_params: networks_lib.Params,
             encoder_params: networks_lib.Params,

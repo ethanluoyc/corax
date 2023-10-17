@@ -6,23 +6,13 @@ from typing import Callable
 import haiku as hk
 import jax
 import jax.numpy as jnp
-import numpy as np
+import numpy as onp
 
 from corax import specs
 from corax import types
 from corax.agents.jax import actor_core
 from corax.jax import networks as networks_lib
 from corax.jax import utils
-
-# Unlike standard FF-policy, in our DrQ-V2 implementation we use
-# scheduled stddev parameters, the pure function for the policy
-# thus needs to know the current time step of the actor to calculate
-# the current stddev.
-Step = int
-DrQV2PolicyNetwork = Callable[
-    [networks_lib.Params, networks_lib.PRNGKey, types.NestedArray, Step],
-    types.NestedArray,
-]
 
 
 class DrQTorso(hk.Module):
@@ -31,14 +21,14 @@ class DrQTorso(hk.Module):
     def __init__(self, name: str = "drq_torso"):
         super().__init__(name)
         # pylint: disable=use-dict-literal
-        conv_kwargs = {
-            "kernel_shape": (3, 3),
-            "output_channels": 32,
-            "padding": "VALID",
+        conv_kwargs = dict(
+            kernel_shape=(3, 3),
+            output_channels=32,
+            padding="VALID",
             # This follows from the reference implementation, the scale accounts for
             # using the ReLU activation.
-            "w_init": hk.initializers.Orthogonal(2**0.5),
-        }
+            w_init=hk.initializers.Orthogonal(2**0.5),
+        )
         self._network = hk.Sequential(
             [
                 hk.Conv2D(stride=2, **conv_kwargs),
@@ -55,15 +45,13 @@ class DrQTorso(hk.Module):
 
     def __call__(self, inputs: jnp.ndarray):
         if not jnp.issubdtype(inputs.dtype, jnp.uint8):
-            msg = "Expect inputs to be uint8 pixel values between 0 to 255."
-            raise ValueError(msg)
+            raise ValueError("Expect inputs to be uint8 pixel values between 0 to 255.")
         if inputs.ndim != 4:
-            msg = (
-                "Input array should have 4 dimensions "
-                "(for batch size, height, width, and channels),"
-                f" but it has {inputs.ndim}"
+            raise ValueError(
+                "Input array should have 4 dimensions (for "
+                "batch size, height, width, and channels), but it has "
+                f"{inputs.ndim}"
             )
-            raise ValueError(msg)
         # Floatify the image.
         preprocessed_inputs = inputs.astype(jnp.float32) / 255.0 - 0.5
         return self._network(preprocessed_inputs)
@@ -100,7 +88,7 @@ def make_networks(
     latent_size: int = 50,
 ) -> DrQV2Networks:
     """Create networks for the DrQ-v2 agent."""
-    action_size = np.prod(spec.actions.shape, dtype=int)
+    action_size = onp.prod(spec.actions.shape, dtype=int)
 
     def _encoder_fn(obs):
         return DrQTorso()(obs)
@@ -171,8 +159,82 @@ def make_networks(
             + jax.lax.stop_gradient(clipped_action)
         )
 
-    def transform_without_rng(f):
-        return hk.without_apply_rng(hk.transform(f))
+    transform_without_rng = lambda f: hk.without_apply_rng(hk.transform(f))
+
+    policy = transform_without_rng(_policy_fn)
+    critic = transform_without_rng(_critic_fn)
+    encoder = transform_without_rng(_encoder_fn)
+    policy_feature = transform_without_rng(_policy_features_fn)
+
+    dummy_action = utils.add_batch_dim(utils.zeros_like(spec.actions))
+    dummy_obs = utils.add_batch_dim(utils.zeros_like(spec.observations))
+    dummy_encoded = jax.eval_shape(encoder.init, jax.random.PRNGKey(0), dummy_obs)
+    dummy_encoded = jax.eval_shape(encoder.apply, dummy_encoded, dummy_obs)
+    dummy_encoded = jnp.zeros(shape=dummy_encoded.shape, dtype=dummy_encoded.dtype)
+
+    return DrQV2Networks(
+        encoder_network=networks_lib.FeedForwardNetwork(
+            lambda key: encoder.init(key, dummy_obs), encoder.apply
+        ),
+        policy_network=networks_lib.FeedForwardNetwork(
+            lambda key: policy.init(key, dummy_encoded), policy.apply
+        ),
+        critic_network=networks_lib.FeedForwardNetwork(
+            lambda key: critic.init(key, dummy_encoded, dummy_action), critic.apply
+        ),
+        add_policy_noise=add_policy_noise,
+        get_policy_feature=policy_feature.apply,
+    )
+
+
+def make_state_networks(spec: specs.EnvironmentSpec):
+    """Create networks for the DrQ-v2 agent."""
+    action_size = onp.prod(spec.actions.shape, dtype=int)
+
+    def _encoder_fn(obs):
+        return obs
+
+    def _critic_fn(obs, action):
+        inputs = jnp.concatenate([obs, action], axis=-1)
+        critic_network1 = networks_lib.LayerNormMLP([256, 256] + [1])
+        critic_network2 = networks_lib.LayerNormMLP([256, 256] + [1])
+        q1 = critic_network1(inputs)
+        q2 = critic_network2(inputs)
+        q1 = jnp.squeeze(q1, axis=-1)
+        q2 = jnp.squeeze(q2, axis=-1)
+        return q1, q2
+
+    def _policy_fn(obs):
+        network = hk.Sequential(
+            [
+                networks_lib.LayerNormMLP([256, 256], activate_final=True),
+                networks_lib.NearZeroInitializedLinear(action_size),
+                networks_lib.TanhToSpec(spec.actions),
+            ]
+        )
+        return network(obs)
+
+    def _policy_features_fn(obs):
+        return obs
+
+    def add_policy_noise(
+        action: types.NestedArray,
+        key: networks_lib.PRNGKey,
+        sigma: float,
+        noise_clip: float,
+    ) -> types.NestedArray:
+        """Adds action noise to bootstrapped Q-value estimate in critic loss."""
+        noise = jax.random.normal(key=key, shape=action.shape) * sigma
+        noise = jnp.clip(noise, -noise_clip, noise_clip)
+        action = action + noise
+        clipped_action = jnp.clip(action, spec.actions.minimum, spec.actions.maximum)
+        return (
+            action
+            - jax.lax.stop_gradient(action)
+            + jax.lax.stop_gradient(clipped_action)
+        )
+
+    transform_without_rng = lambda f: hk.without_apply_rng(hk.transform(f))
 
     policy = transform_without_rng(_policy_fn)
     critic = transform_without_rng(_critic_fn)
