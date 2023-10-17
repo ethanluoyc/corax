@@ -1,0 +1,19 @@
+[envs.default]
+python = "3.9"
+features = ["jax", "tf", "dev"]
+pre-install-commands = [
+    "pip install -r projects/baselines/requirements.txt",
+]
+post-install-commands = [
+    "pip install -e projects/baselines",
+]
+[envs.default.scripts]
+test = "CUDA_VISIBLE_DEVICES='' JAX_DISABLE_MOST_OPTIMIZATIONS=1 pytest -rf --durations=10 {args:corax}"
+lint = [
+    "ruff .",
+    "black --check --diff .",
+]
+fmt = [
+	"ruff --fix .",
+	"black .",
+]

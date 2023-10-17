@@ -92,7 +92,7 @@ exclude = ["third_party", ".venv"]
 "__init__.py" = ["F401"]
 
 [tool.ruff.isort]
-known-first-party = ["corax"]
+known-first-party = ["corax", "baselines"]
 force-single-line = true
 single-line-exclusions = ["typing"]
 
