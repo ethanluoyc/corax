@@ -30,16 +30,45 @@ To use Corax with GPU, you need to install JAX with GPU support. Follow the inst
 [here](https://jax.readthedocs.io/en/latest/installation.html) for how to install JAX
 with GPU support.
 
-*Note on TensorFlow dependency: The base corax package does not depend on specific deep
+### Note on TensorFlow dependency
+The base corax package does not depend on specific deep
 learning frameworks. However, the JAX agent depends on TensorFlow for efficient
-data-processing. We provide optional extras for installing `tensorflow-cpu` and
+data-processing.
+
+We provide optional extras for installing `tensorflow-cpu` and
 compatible versions of [TensorFlow
 Probability](https://github.com/tensorflow/probability) and
-[Reverb](https://github.com/google-deepmind/reverb/tree/master). However, should that be
+[Reverb](https://github.com/google-deepmind/reverb/tree/master).
+
+However, should that be
 incompatible with your own dependency requirements, you can optionally specify these
 dependencies yourself and opt-out our extras. Check out the
 [pyproject.toml](./pyproject.toml) for examples on how to specify compatible TensorFlow
-versions.*
+versions.
+Here is an example workflow of determining the compatible versions of TensorFlow, TensorFlow-Probability and Reverb. Assume that you will use `tensorflow-cpu~=2.13.0`, then
+1. Looking at https://github.com/tensorflow/probability/releases,
+the tensorflow-probability version compatible with `tensorflow~=2.13.0` is `0.21.0`.
+2. Looking at https://github.com/google-deepmind/reverb/tree/master#reverb-releases, the
+`dm-reverb` version compatible is `0.12.0`.
+
+Therefore, as an application developer, you should put the following in your `requirements.txt`
+```bash
+tensorflow-cpu~=2.13.0
+tensorflow-probability~=0.21.0
+dm-reverb~=0.12.0
+```
+
+If you use `dm-launchpad`. The workflow is similar, although as of 17 Oct, 2023 Launchpad
+does not provide an official build for `tensorflow 2.13.0`. We however, have an unofficial
+manylinux build for Python 3.9 and 3.10 available at
+https://github.com/ethanluoyc/launchpad/releases/tag/v0.6.0rc0. If you intend to use
+this version, you should include in your `requirements.txt`
+```bash
+# Use the exact link to the wheel file for your Python version
+dm-launchpad @ https://github.com/ethanluoyc/launchpad/releases/download/v0.6.0rc0/dm_launchpad-0.6.0rc0-cp39-cp39-manylinux2014_x86_64.whl
+```
+We currently do not have build for tensorflow 2.14.0 due to
+https://github.com/google-deepmind/launchpad/issues/44.
 
 ## Examples
 Examples can be found in [projects](projects/).
