@@ -82,7 +82,7 @@ cd corax
 python3 -m venv .venv
 source .venv/bin/activate
 # Then run
-pip install -e '.[dev]'
+pip install -e '.[tf,jax,test,dev]'
 # Install pre-commit hooks if you intend to create PRs.
 pre-commit install
 # Install the baselines by running
