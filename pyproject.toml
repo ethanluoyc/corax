@@ -22,7 +22,6 @@ source = "vcs"
 
 [project.optional-dependencies]
 tf = [
-  # TF dependencies
   "tensorflow-cpu~=2.13.0",
   "tensorflow-probability~=0.21.0",
   "tensorflow-datasets~=4.9.3",
@@ -30,8 +29,9 @@ tf = [
   "rlds",
 ]
 jax = [
-  "corax[tf]",
+  "tensorflow-probability",
   "jax",
+  "jaxlib",
   "dm-haiku",
   "flax",
   "optax",
@@ -39,9 +39,7 @@ jax = [
   "chex",
   "dm_env_wrappers",
 ]
-all = ["corax[tf,jax]"]
 test = [
-  "corax[all]",
   "pytest",
   "pytest-xdist",
   "dill",           # required for tfds tests
@@ -54,7 +52,7 @@ test = [
   "ott-jax",
   "dm-control",
 ]
-dev = ["corax[test]", "black", "ruff", "pre-commit"]
+dev = ["black", "ruff", "pre-commit"]
 
 [tool.hatch.build]
 directory = "dist"
