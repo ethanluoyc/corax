@@ -16,9 +16,7 @@
 
 import abc
 import dataclasses
-from typing import Generic, Iterator, List, Optional, TypeVar
-
-import reverb
+from typing import TYPE_CHECKING, Generic, Iterator, List, Optional, TypeVar
 
 from corax import adders
 from corax import core
@@ -26,6 +24,9 @@ from corax import specs
 from corax.jax import networks as networks_lib
 from corax.utils import counting
 from corax.utils import loggers
+
+if TYPE_CHECKING:
+    import reverb
 
 Networks = TypeVar("Networks")
 Policy = TypeVar("Policy")
@@ -122,7 +123,7 @@ class ActorLearnerBuilder(
         self,
         environment_spec: specs.EnvironmentSpec,
         policy: Policy,
-    ) -> List[reverb.Table]:
+    ) -> List["reverb.Table"]:
         """Create tables to insert data into.
 
         Args:
@@ -136,14 +137,14 @@ class ActorLearnerBuilder(
     @abc.abstractmethod
     def make_dataset_iterator(
         self,
-        replay_client: reverb.Client,
+        replay_client: "reverb.Client",
     ) -> Iterator[Sample]:
         """Create a dataset iterator to use for learning/updating the agent."""
 
     @abc.abstractmethod
     def make_adder(
         self,
-        replay_client: reverb.Client,
+        replay_client: "reverb.Client",
         environment_spec: Optional[specs.EnvironmentSpec],
         policy: Optional[Policy],
     ) -> Optional[adders.Adder]:
@@ -184,7 +185,7 @@ class ActorLearnerBuilder(
         dataset: Iterator[Sample],
         logger_fn: loggers.LoggerFactory,
         environment_spec: specs.EnvironmentSpec,
-        replay_client: Optional[reverb.Client] = None,
+        replay_client: Optional["reverb.Client"] = None,
         counter: Optional[counting.Counter] = None,
     ) -> core.Learner:
         """Creates an instance of the learner.
@@ -243,18 +244,18 @@ class ActorLearnerBuilderWrapper(
         self,
         environment_spec: specs.EnvironmentSpec,
         policy: Policy,
-    ) -> List[reverb.Table]:
+    ) -> List["reverb.Table"]:
         return self.wrapped.make_replay_tables(environment_spec, policy)
 
     def make_dataset_iterator(
         self,
-        replay_client: reverb.Client,
+        replay_client: "reverb.Client",
     ) -> Iterator[Sample]:
         return self.wrapped.make_dataset_iterator(replay_client)
 
     def make_adder(
         self,
-        replay_client: reverb.Client,
+        replay_client: "reverb.Client",
         environment_spec: Optional[specs.EnvironmentSpec],
         policy: Optional[Policy],
     ) -> Optional[adders.Adder]:
@@ -279,7 +280,7 @@ class ActorLearnerBuilderWrapper(
         dataset: Iterator[Sample],
         logger_fn: loggers.LoggerFactory,
         environment_spec: specs.EnvironmentSpec,
-        replay_client: Optional[reverb.Client] = None,
+        replay_client: Optional["reverb.Client"] = None,
         counter: Optional[counting.Counter] = None,
     ) -> core.Learner:
         return self.wrapped.make_learner(
