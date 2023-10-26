@@ -20,6 +20,7 @@ import itertools
 import queue
 import threading
 from typing import (
+    TYPE_CHECKING,
     Callable,
     Iterable,
     Iterator,
@@ -35,12 +36,14 @@ import haiku as hk
 import jax
 import jax.numpy as jnp
 import numpy as np
-import reverb
 import tree
 
 from corax import core
 from corax import types
 from corax.jax import types as jax_types
+
+if TYPE_CHECKING:
+    import reverb
 
 F = TypeVar("F", bound=Callable)
 N = TypeVar("N", bound=types.NestedArray)
@@ -173,7 +176,7 @@ class PrefetchingSplit(NamedTuple):
 _SplitFunction = Callable[[types.NestedArray], PrefetchingSplit]
 
 
-def keep_key_on_host(sample: reverb.ReplaySample) -> PrefetchingSplit:
+def keep_key_on_host(sample: "reverb.ReplaySample") -> PrefetchingSplit:
     """Returns PrefetchingSplit which keeps uint64 reverb key on the host.
 
     We want to avoid truncation of the uint64 reverb key by JAX.

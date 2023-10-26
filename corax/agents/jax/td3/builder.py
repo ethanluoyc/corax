@@ -43,7 +43,7 @@ class TD3Builder(
     builders.ActorLearnerBuilder[
         td3_networks.TD3Networks,
         actor_core_lib.FeedForwardPolicy,
-        reverb.ReplaySample,
+        "reverb.ReplaySample",
     ]
 ):
     """TD3 Builder."""
@@ -66,7 +66,7 @@ class TD3Builder(
         dataset: Iterator[reverb.ReplaySample],
         logger_fn: loggers.LoggerFactory,
         environment_spec: specs.EnvironmentSpec,
-        replay_client: Optional[reverb.Client] = None,
+        replay_client: Optional["reverb.Client"] = None,
         counter: Optional[counting.Counter] = None,
     ) -> core.Learner:
         del environment_spec, replay_client

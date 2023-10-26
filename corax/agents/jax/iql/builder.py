@@ -1,8 +1,7 @@
 """IQL Builder."""
-from typing import Iterator, Optional
+from typing import TYPE_CHECKING, Iterator, Optional
 
 import optax
-import reverb
 
 from corax import adders
 from corax import core
@@ -18,6 +17,9 @@ from corax.jax import networks as networks_lib
 from corax.jax import variable_utils
 from corax.utils import counting
 from corax.utils import loggers
+
+if TYPE_CHECKING:
+    import reverb
 
 
 class IQLBuilder(
@@ -42,7 +44,7 @@ class IQLBuilder(
         dataset: Iterator[types.Transition],
         logger_fn: loggers.LoggerFactory,
         environment_spec: specs.EnvironmentSpec,
-        replay_client: Optional[reverb.Client] = None,
+        replay_client: Optional["reverb.Client"] = None,
         counter: Optional[counting.Counter] = None,
     ) -> core.Learner:
         del environment_spec, replay_client

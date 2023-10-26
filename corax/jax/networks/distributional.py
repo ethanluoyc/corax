@@ -22,7 +22,6 @@ import haiku as hk
 import jax
 import jax.numpy as jnp
 import numpy as np
-import tensorflow_probability as tf_tfp
 import tensorflow_probability.substrates.jax as tfp
 
 hk_init = hk.initializers
@@ -433,7 +432,9 @@ class DiscreteValuedTfpHead(hk.Module):
         return DiscreteValuedTfpDistribution(values=self._values, logits=logits)
 
 
-@tf_tfp.experimental.auto_composite_tensor
+# TODO(yl): Investigate effect of this in JAX.
+# import tensorflow_probability as tf_tfp
+# @tf_tfp.experimental.auto_composite_tensor
 class DiscreteValuedTfpDistribution(tfd.Categorical):
     """This is a generalization of a categorical distribution.
 
