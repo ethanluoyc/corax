@@ -68,8 +68,9 @@ _DATASET_CONFIGS = {
 class Exorl(tfds.core.GeneratorBasedBuilder):
     """DatasetBuilder for exorl dataset."""
 
-    VERSION = tfds.core.Version("1.0.0")
+    VERSION = tfds.core.Version("1.0.1")
     RELEASE_NOTES = {
+        "1.0.1": "Fix issue with reward shape in point_mass_maze.",
         "1.0.0": "Initial release.",
     }
 
@@ -119,6 +120,16 @@ class Exorl(tfds.core.GeneratorBasedBuilder):
     def _info(self) -> tfds.core.DatasetInfo:
         """Returns the dataset metadata."""
         dataset_config = _DATASET_CONFIGS[self.builder_config.domain]
+        if self.builder_config.domain == "point_mass_maze":
+            # Point mass is a multi-task environment
+            reward_spec = tfds.features.Tensor(
+                shape=(4,),
+                encoding=tfds.features.Encoding.ZLIB,
+                dtype=np.float32,
+            )
+        else:
+            reward_spec = np.float32
+
         steps_dict = {
             "observation": tfds.features.Tensor(
                 shape=(dataset_config.obs_dim,),
@@ -130,7 +141,7 @@ class Exorl(tfds.core.GeneratorBasedBuilder):
                 encoding=tfds.features.Encoding.ZLIB,
                 dtype=np.float32,
             ),
-            "reward": np.float32,
+            "reward": reward_spec,
             "discount": np.float32,
             "physics": tfds.features.Tensor(
                 shape=(dataset_config.physics_dim,),
@@ -161,20 +172,17 @@ class Exorl(tfds.core.GeneratorBasedBuilder):
 
     def _split_generators(self, dl_manager: tfds.download.DownloadManager):
         """Returns SplitGenerators."""
-        # TODO(exorl): Downloads the data and defines the splits
         dataset_url = _BASE_URL.format(
             domain=self.builder_config.domain, algorithm=self.builder_config.algorithm
         )
         extracted_path = dl_manager.download_and_extract({"file_path": dataset_url})
 
-        # TODO(exorl): Returns the Dict[split names, Iterator[Key, Example]]
         return {
             "train": self._generate_examples(extracted_path),
         }
 
     def _generate_examples(self, path):
         """Yields examples."""
-        # TODO(exorl): Yields (key, example) tuples from the dataset
         buffer_path = path["file_path"] / "buffer"
         for i, f in enumerate(sorted(buffer_path.glob("*.npz"))):
             episode = _decode_episode(f)
@@ -198,7 +206,10 @@ def _decode_episode(filename):
         episode["reward"] = np.concatenate(
             (data["reward"][1:], [np.zeros_like(data["reward"][0])])
         )
-        episode["reward"] = np.squeeze(episode["reward"], axis=-1)
+        if episode["reward"].shape[-1] == 1:
+            episode["reward"] = np.squeeze(episode["reward"], axis=-1)
+        else:
+            episode["reward"] = episode["reward"]
         episode["discount"] = np.concatenate(
             (data["discount"][1:], [np.zeros_like(data["discount"][0])])
         )
