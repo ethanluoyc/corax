@@ -1,5 +1,5 @@
 [envs.default]
-python = "3.9"
+python = "3.10"
 features = ["jax", "tf", "test", "dev"]
 pre-install-commands = [
     "pip install -r projects/baselines/requirements.txt",
