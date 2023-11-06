@@ -1,0 +1,61 @@
+diff --git a/Makefile b/Makefile
+index 2cdbf38..3a44fd8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -17,6 +17,7 @@ clean:
+ 	rm -rf mujoco_py/generated/*.so
+ 	rm -rf mujoco_py/generated/*.dll
+ 	rm -rf mujoco_py/generated_cymj*
++	rm -rf mujoco_py/generated/mujocopy-buildlock
+ 	rm -rf mujoco_py/cythonlock_*.pyc
+ 	rm -rf mujoco_py/cymj.c
+ 	rm -rf mujoco_py/__pycache__
+diff --git a/mujoco_py/builder.py b/mujoco_py/builder.py
+index 5280b2c..2c9c731 100644
+--- a/mujoco_py/builder.py
++++ b/mujoco_py/builder.py
+@@ -89,6 +89,15 @@ The easy solution is to `import mujoco_py` _before_ `import glfw`.
+     builder = Builder(mujoco_path)
+     cext_so_path = builder.get_so_file_path()
+
++    # lockpath = os.path.join(os.path.dirname(cext_so_path), 'mujocopy-buildlock')
++    # https://github.com/openai/mujoco-py/issues/523#issuecomment-651445813
++    # Check if we have write access to the cext_so_path.
++    # If not, it's probably because mujoco-py has been installed and everything is
++    # read-only. Returning here is necessary because the lock creation will fail.
++    # It might be better to try-catch the lock but this minimizes the diff complexity.
++    if not os.access(os.path.dirname(cext_so_path), os.W_OK):
++        return load_dynamic_ext('cymj', cext_so_path)
++
+     lockpath = os.path.join(os.path.dirname(cext_so_path), 'mujocopy-buildlock')
+
+     with fasteners.InterProcessLock(lockpath):
+diff --git a/pyproject.toml b/pyproject.toml
+index 6082a33..1293aba 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -1,9 +1,10 @@
+ [build-system]
++build-backend = "setuptools.build_meta:__legacy__"
+ requires = [
+     "setuptools",
+     "glfw>=1.4.0",
+     "numpy>=1.11",
+-    "Cython>=0.27.2",
++    "Cython>=0.27.2,<3",
+     "imageio>=2.1.2",
+     "cffi>=1.10",
+     "fasteners~=0.15"
+diff --git a/requirements.txt b/requirements.txt
+index 720b09d..6f985f9 100644
+--- a/requirements.txt
++++ b/requirements.txt
+@@ -1,7 +1,7 @@
+ # When updating these, you may need to also update pyproject.toml
+ glfw>=1.4.0
+ numpy>=1.11
+-Cython>=0.27.2
++Cython>=0.27.2,<3
+ imageio>=2.1.2
+ cffi>=1.10
+ fasteners~=0.15
