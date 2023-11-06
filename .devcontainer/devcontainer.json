@@ -16,11 +16,11 @@
         },
         "target": "base"
     },
-	"mounts": [{
-        "type": "bind",
-        "source": "${localEnv:HOME}/tensorflow_datasets",
-        "target": "/home/vscode/tensorflow_datasets"
-    }],
+	// "mounts": [{
+    //     "type": "bind",
+    //     "source": "${localEnv:HOME}/tensorflow_datasets",
+    //     "target": "/home/vscode/tensorflow_datasets"
+    // }],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
