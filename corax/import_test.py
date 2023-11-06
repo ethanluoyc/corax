@@ -34,6 +34,9 @@ class ImportTest(absltest.TestCase):
 
         self.assertNotIn("reverb", sys.modules)
 
+    def test_import_mujoco_py(self):
+        import mujoco_py
+
 
 if __name__ == "__main__":
     absltest.main()

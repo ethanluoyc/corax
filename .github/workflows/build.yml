@@ -29,6 +29,13 @@ jobs:
           # Change this to be your CI task/script
           runCmd: |
             # Add multiple commands to run if needed
+            export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
+            mkdir -p $TFDS_DATA_DIR
             pdm install -G tf,jax,test,dev,jax_cuda
             pdm lint
             pdm test
+      - name: Test TFDS data generation
+        run: |
+          export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
+          tfds build --config v1-medium-replay d4rl_mujoco_halfcheetah
+          ls -l $TFDS_DATA_DIR
