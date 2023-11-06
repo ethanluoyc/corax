@@ -40,7 +40,7 @@ jobs:
 
     - name: Lint
       run: |
-        pdm run test
+        pdm run lint
 
     - name: Run tests
       run: pdm run test
