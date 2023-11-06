@@ -7,7 +7,7 @@ name = "corax"
 authors = [{ name = "Yicheng Luo", email = "ethanluoyc@gmail.com" }]
 requires-python = ">=3.9,<3.11"
 dependencies = ["absl-py", "dm-env", "numpy", "dm-tree"]
-version = "0.1.0"
+dynamic = ["version"]
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -16,6 +16,9 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: Implementation :: CPython",
 ]
+
+[tool.pdm.version]
+source = "scm"
 
 [project.optional-dependencies]
 tf = [
