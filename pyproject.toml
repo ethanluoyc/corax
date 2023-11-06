@@ -1,13 +1,13 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs"]
-build-backend = "hatchling.build"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [project]
 name = "corax"
 authors = [{ name = "Yicheng Luo", email = "ethanluoyc@gmail.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.11"
 dependencies = ["absl-py", "dm-env", "numpy", "dm-tree"]
-dynamic = ["version"]
+version = "0.1.0"
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
@@ -17,15 +17,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
 ]
 
-[tool.hatch.version]
-source = "vcs"
-
 [project.optional-dependencies]
 tf = [
-  "tensorflow-cpu~=2.13.0",
-  "tensorflow-probability~=0.21.0",
-  "tensorflow-datasets~=4.9.3",
-  "dm-reverb~=0.12.0",
+  "tensorflow-cpu~=2.14.0",
+  "tensorflow-probability~=0.22.1",
+  "tensorflow-datasets>=4.9.3",
+  "dm-reverb~=0.13.0",
   "rlds",
 ]
 jax = [
@@ -39,26 +36,6 @@ jax = [
   "chex",
   "dm_env_wrappers",
 ]
-test = [
-  "pytest",
-  "pytest-xdist",
-  "dill",           # required for tfds tests
-  "wandb",
-  "ml-collections",
-  "scipy>=1.6.0",
-  # Environments
-  "gym>=0.21.0,<0.24.0",
-  "gymnasium",
-  "ott-jax",
-  "dm-control",
-]
-dev = ["black", "ruff", "pre-commit"]
-
-[tool.hatch.build]
-directory = "dist"
-
-[tool.hatch.build.targets.wheel]
-exclude = ["dummy_data/", "*_test.py"]
 
 [tool.black]
 line-length = 88
@@ -75,6 +52,41 @@ exclude = '''
   | scratch
 )/
 '''
+
+[[tool.pdm.source]]
+name = "jax_cuda"
+url = "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
+verify_ssl = true
+type = "find_links"
+
+[tool.pdm.resolution]
+respect-source-order = true
+
+[tool.pdm.dev-dependencies]
+dev = ["black", "ruff", "pre-commit"]
+test = [
+  "pytest",
+  "pytest-xdist",
+  "dill",           # required for tfds tests
+  "wandb",
+  "ml-collections",
+  "scipy>=1.6.0",
+  # Environments
+  "gym>=0.21.0,<0.24.0",
+  "gymnasium",
+  "ott-jax",
+  "dm-control",
+]
+jax_cuda = ["jax[cuda12_pip]"]
+baselines = [
+  "-e baselines @ file:///${PROJECT_ROOT}/projects/baselines"
+]
+
+[tool.pdm.scripts]
+test.cmd = "pytest -rf --durations=10"
+test.env = {JAX_DISBLAE_MOST_OPTIMIZATIONS = "1", CUDA_VISIBLE_DEVICES = ""}
+lint.shell = "ruff . && black --check --diff ."
+fmt.shell = "ruff --fix . && black ."
 
 [tool.ruff]
 line-length = 120
@@ -106,7 +118,7 @@ ignore = ["corax/adders", "corax/datasets/tfds"]
 reportMissingImports = true
 reportMissingTypeStubs = false
 
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 pythonPlatform = "Linux"
 
 [tool.pytest.ini_options]
