@@ -16,17 +16,12 @@ env:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
-
       - name: Checkout (GitHub)
         uses: actions/checkout@v3
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: pdm cache
         uses: actions/cache@v3
@@ -42,12 +37,20 @@ jobs:
           key: ${{ runner.os }}-tfds-${{ hashFiles('pdm.lock') }}
           restore-keys: |
             ${{ runner.os }}-tfds-
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build and run Dev Container task
         uses: devcontainers/ci@v0.3
         with:
           # Change this to point to your image name
-          imageName: ghcr.io/corax/corax-devcontainer
-          cacheFrom: ghcr.io/corax/corax-devcontainer
+          imageName: ghcr.io/ethanluoyc/corax
+          cacheFrom: ghcr.io/ethanluoyc/corax
           # Change this to be your CI task/script
           runCmd: |
             # Add multiple commands to run if needed
