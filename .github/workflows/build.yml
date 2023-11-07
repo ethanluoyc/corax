@@ -20,26 +20,20 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: pip cache
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: ${{ runner.os }}-pip-${{ hashFiles('pdm.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
       - name: pdm cache
         uses: actions/cache@v3
         with:
-          path: .cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('pdm.lock') }}
+          path: .cache/pdm
+          key: ${{ runner.os }}-pdm-${{ hashFiles('pdm.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pip-
-      # - name: Setup PDM
-      #   uses: pdm-project/setup-pdm@v3
-      #   with:
-      #     python-version: ${{ matrix.python-version }}
-      #     pdm-version: 2.10.0
-      #     cache: true
+            ${{ runner.os }}-pdm-
+      - name: TFDS cache
+        uses: pdm-project/setup-pdm@v3
+        with:
+          path: .tensorflow_datasets
+          key: ${{ runner.os }}-tfds
+          restore-keys: |
+            ${{ runner.os }}-tfds-
       - name: Build and run Dev Container task
         uses: devcontainers/ci@v0.3
         with:
@@ -55,6 +49,4 @@ jobs:
             pdm install -G:all
             pdm lint
             pdm test
-            export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
-            pdm run tfds build --config v1-medium-replay d4rl_mujoco_halfcheetah
-            ls -l $TFDS_DATA_DIR
+            pdm run python projects/baselines/baselines/iql/train_test.py

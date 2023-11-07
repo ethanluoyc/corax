@@ -8,6 +8,7 @@ class TrainTest(absltest.TestCase):
     def test_train_and_evaluate(self):
         config = base_config.get_base_config()
         config.num_episodes = 2
+        config.env_name = "halfcheetah-medium-replay-v2"
         config.num_eval_episodes = 1
         config.batch_size = 1
         config.hidden_dims = (8, 8)
