@@ -1,9 +1,13 @@
-name: 'build'
+name: 'test'
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
     branches:
       - main
+
+concurrency:
+  group: ${{ github.repository_owner }}-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
