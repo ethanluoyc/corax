@@ -28,10 +28,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pdm-
       - name: TFDS cache
-        uses: pdm-project/setup-pdm@v3
+        uses: actions/cache@v3
         with:
           path: .tensorflow_datasets
-          key: ${{ runner.os }}-tfds
+          key: ${{ runner.os }}-tfds-${{ hashFiles('pdm.lock') }}
           restore-keys: |
             ${{ runner.os }}-tfds-
       - name: Build and run Dev Container task
