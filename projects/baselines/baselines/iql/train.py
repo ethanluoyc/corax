@@ -29,7 +29,7 @@ def make_d4rl_transition_dataset(
     d4rl_name: str, batch_size: int, seed: int, num_episodes: Optional[int] = None
 ):
     dataset = tfds.load_tfds_dataset(
-        d4rl_utils.get_tfds_name(d4rl_name), num_episodes=num_episodes, download=False
+        d4rl_utils.get_tfds_name(d4rl_name), num_episodes=num_episodes, download=True
     )
     start_time = time.time()
     if "antmaze" in d4rl_name:
