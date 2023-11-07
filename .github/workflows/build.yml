@@ -20,6 +20,26 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: pip cache
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: ${{ runner.os }}-pip-${{ hashFiles('pdm.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: pdm cache
+        uses: actions/cache@v3
+        with:
+          path: .cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('pdm.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      # - name: Setup PDM
+      #   uses: pdm-project/setup-pdm@v3
+      #   with:
+      #     python-version: ${{ matrix.python-version }}
+      #     pdm-version: 2.10.0
+      #     cache: true
       - name: Build and run Dev Container task
         uses: devcontainers/ci@v0.3
         with:
@@ -31,11 +51,10 @@ jobs:
             # Add multiple commands to run if needed
             export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
             mkdir -p $TFDS_DATA_DIR
-            pdm install -G tf,jax,test,dev,jax_cuda
+            pdm config cache_dir .cache/pdm
+            pdm install -G:all
             pdm lint
             pdm test
-      - name: Test TFDS data generation
-        run: |
-          export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
-          tfds build --config v1-medium-replay d4rl_mujoco_halfcheetah
-          ls -l $TFDS_DATA_DIR
+            export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
+            pdm run tfds build --config v1-medium-replay d4rl_mujoco_halfcheetah
+            ls -l $TFDS_DATA_DIR
