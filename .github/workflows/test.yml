@@ -9,8 +9,12 @@ concurrency:
   group: ${{ github.repository_owner }}-${{ github.repository }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  FORCE_COLOR: "1"
+  PYTHONUNBUFFERED: "1"
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
 
@@ -50,7 +54,7 @@ jobs:
             export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
             mkdir -p $TFDS_DATA_DIR
             pdm config cache_dir .cache/pdm
-            pdm install -G:all
+            pdm sync -G:all
             pdm lint
             pdm test
             pdm run python projects/baselines/baselines/iql/train_test.py
