@@ -98,6 +98,31 @@ class SimpleActorCoreStateWithExtras:
     extras: Mapping[str, jnp.ndarray]
 
 
+def batched_feed_forward_with_extras_to_actor_core(
+    policy: FeedForwardPolicyWithExtra,
+) -> ActorCore[SimpleActorCoreStateWithExtras, Mapping[str, jnp.ndarray]]:
+    """A convenience adaptor from FeedForwardPolicy to ActorCore."""
+
+    def select_action(
+        params: networks_lib.Params,
+        observation: networks_lib.Observation,
+        state: SimpleActorCoreStateWithExtras,
+    ):
+        rng = state.rng
+        rng1, rng2 = jax.random.split(rng)
+        observation = utils.add_batch_dim(observation)
+        action, extras = utils.squeeze_batch_dim(policy(params, rng1, observation))
+        return action, SimpleActorCoreStateWithExtras(rng2, extras)  # type: ignore
+
+    def init(rng: PRNGKey) -> SimpleActorCoreStateWithExtras:
+        return SimpleActorCoreStateWithExtras(rng, {})  # type: ignore
+
+    def get_extras(state: SimpleActorCoreStateWithExtras) -> Mapping[str, jnp.ndarray]:
+        return state.extras
+
+    return ActorCore(init=init, select_action=select_action, get_extras=get_extras)
+
+
 def unvectorize_select_action(actor_core: ActorCore) -> ActorCore:
     """Makes an actor core's select_action method expect unbatched arguments."""
 
