@@ -1,4 +1,5 @@
 from corax.agents.jax.redq.learning import REDQLearnerCore
+from corax.agents.jax.redq.networks import REDQNetworks
 from corax.agents.jax.redq.networks import apply_policy_and_sample
 from corax.agents.jax.redq.networks import make_networks
 from corax.agents.jax.redq.networks import target_entropy_from_spec
