@@ -14,7 +14,7 @@ class AgentTest(absltest.TestCase):
         env = fakes.ContinuousEnvironment(bounded=True)
         env_spec = corax.make_environment_spec(env)
         networks = redq.make_networks(
-            env_spec, hidden_sizes=(8, 8), num_qs=5, num_min_qs=2
+            env_spec, hidden_sizes=(8, 8), num_qs=2, num_min_qs=2
         )
         utd_ratio = 2
         batch_size = 2

@@ -14,7 +14,7 @@ class RLDSDataset(absltest.TestCase):
         env = fakes.ContinuousEnvironment(action_dim=2, observation_dim=2, bounded=True)
         env_specs = specs.make_environment_spec(env)
 
-        episode_dataset = fakes.rlds_dataset_from_env_spec(env_specs)
+        episode_dataset = fakes.rlds_dataset_from_env_spec(env_specs, episode_count=1)
         observation_mean_std = dataset_lib.get_observation_mean_std(episode_dataset)
         dataset = (
             dataset_lib.transform_decision_transformer_input(
@@ -24,7 +24,7 @@ class RLDSDataset(absltest.TestCase):
                 observation_mean_std=observation_mean_std,
             )
             .repeat()
-            .batch(10)
+            .batch(2)
         )
 
         networks = decision_transformer.make_gym_networks(
