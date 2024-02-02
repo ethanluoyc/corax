@@ -50,7 +50,7 @@ class LossTest(absltest.TestCase):
                 utils.tile_nested(dummy_values.actions, horizon)
             ),
             discount=jnp.ones((1, horizon)),
-            start_of_episode=jnp.ones((1, horizon)),
+            start_of_episode=jnp.ones((1, horizon)),  # type: ignore
         )
         sequences = jax.tree_map(lambda x: x + 1, sequences)
 

@@ -9,6 +9,7 @@ import jax.numpy as jnp
 import numpy as np
 
 from corax import specs
+from corax.jax import networks as networks_lib
 from corax.jax import utils
 
 
@@ -60,7 +61,7 @@ class TDMPCNetworks:
 def init_params(
     networks: TDMPCNetworks,
     spec: specs.EnvironmentSpec,
-    key: jax.random.PRNGKeyArray,
+    key: networks_lib.PRNGKey,
 ):
     keys = jax.random.split(key, 6)
     dummy_obs = utils.add_batch_dim(utils.zeros_like(spec.observations))
