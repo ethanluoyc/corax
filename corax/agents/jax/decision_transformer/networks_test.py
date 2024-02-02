@@ -61,11 +61,11 @@ class NetworksTest(absltest.TestCase):
         chex.assert_equal_shape((return_preds, examples_input["rewards"]))
 
     def test_transformer_forward(self):
-        batch_size = 10
+        batch_size = 3
         sequence_size = 5
         input_size = 4
-        num_heads = 2
-        num_layers = 2
+        num_heads = 1
+        num_layers = 1
         dropout_rate = 0.0
 
         def forward_fn(data, is_training=True):

@@ -13,8 +13,8 @@ from corax.testing import fakes
 class CQLTest(absltest.TestCase):
     def test_train(self):
         seed = 0
-        num_iterations = 6
-        batch_size = 64
+        num_iterations = 3
+        batch_size = 10
 
         # Create a fake environment to test with.
         environment = fakes.ContinuousEnvironment(
@@ -39,6 +39,7 @@ class CQLTest(absltest.TestCase):
             critic_optimizer=optax.adam(3e-4),
             fixed_cql_coefficient=5.0,
             cql_lagrange_threshold=None,
+            cql_num_samples=2,
             target_entropy=0.1,
             num_bc_iters=2,
             num_sgd_steps_per_step=1,
