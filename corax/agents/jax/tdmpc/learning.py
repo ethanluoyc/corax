@@ -47,7 +47,7 @@ class TrainingState(NamedTuple):
     target_params: tdmpc_networks.TDMPCParams
     opt_state: optax.OptState
     steps: int
-    key: jax.random.PRNGKeyArray
+    key: networks_lib.PRNGKey
 
 
 class ModelOutputs(NamedTuple):
@@ -76,7 +76,7 @@ class TDMPCLearner(corax.Learner):
         self,
         spec: specs.EnvironmentSpec,
         networks: tdmpc_networks.TDMPCNetworks,
-        random_key: jax.random.PRNGKeyArray,
+        random_key: networks_lib.PRNGKey,
         replay_client: reverb.Client,
         iterator: Iterator[TDMPCReplaySample],
         *,
@@ -291,7 +291,7 @@ class TDMPCLearner(corax.Learner):
         params: tdmpc_networks.TDMPCParams,
         target_params: tdmpc_networks.TDMPCParams,
         batch: reverb.ReplaySample,
-        key: jax.random.PRNGKeyArray,
+        key: networks_lib.PRNGKey,
     ):
         """Computes the loss for the model and policy."""
         sequences: adders_reverb.Step = jax_utils.batch_to_sequence(batch.data)

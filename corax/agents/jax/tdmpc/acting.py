@@ -23,7 +23,7 @@ class TDMPCActor(core.Actor):
         variable_client: variable_utils.VariableClient,
         spec: specs.EnvironmentSpec,
         networks: tdmpc_networks.TDMPCNetworks,
-        random_key: jax.random.PRNGKeyArray,
+        random_key: networks_lib.PRNGKey,
         *,
         std_schedule: optax.Schedule,
         horizon_schedule: optax.Schedule,

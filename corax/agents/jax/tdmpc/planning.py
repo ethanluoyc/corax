@@ -11,11 +11,12 @@ Embedding = jax.Array
 Action = jax.Array
 Reward = jax.Array
 Trajectory = jax.Array
+PRNGKeyArray = jax.Array
 
 EncoderFn = Callable[[Params, Observation], Embedding]
 ModelFn = Callable[[Params, Embedding, Action], Tuple[Embedding, Reward]]
 CriticFn = Callable[[Params, Embedding, Action], jax.Array]
-PolicyFn = Callable[[Params, Embedding, jax.random.PRNGKeyArray], Action]
+PolicyFn = Callable[[Params, Embedding, PRNGKeyArray], Action]
 
 
 def get_initial_trajectory(action_dims: int, horizon: int) -> Trajectory:
@@ -31,7 +32,7 @@ def td_mpc_planner(
     params: Params,
     observation: Observation,
     previous_trajectory: Trajectory,
-    key: jax.random.PRNGKeyArray,
+    key: PRNGKeyArray,
     *,
     n_policy_trajectories: int,
     n_sample_trajectories: int,
@@ -156,7 +157,7 @@ def td_mpc_planner(
 
         # Avoid NaNs
         # TODO(yl): Replace 0 with something else in case we use negative rewards.
-        values = jnp.nan_to_num(values, 0)
+        values = jnp.nan_to_num(values, nan=0)
         chex.assert_shape([values], (n_sample_trajectories + n_policy_trajectories,))
 
         ## Update parameters mu, signa for next iteration (Eqn. 5)
@@ -218,7 +219,7 @@ def _compute_n_step_return(
     params: Params,
     z: jax.Array,
     actions: jax.Array,
-    key: jax.random.PRNGKeyArray,
+    key: PRNGKeyArray,
     *,
     discount: float,
 ) -> jax.Array:
@@ -240,7 +241,7 @@ def _rollout_policy(
     model_fn: ModelFn,
     policy_fn: PolicyFn,
     z: Embedding,
-    key: jax.random.PRNGKeyArray,
+    key: PRNGKeyArray,
     horizon: int,
     num_trajectories: int,
 ) -> Trajectory:
