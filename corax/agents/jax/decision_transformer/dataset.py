@@ -72,7 +72,10 @@ def transform_decision_transformer_input(
         padded_discounts = _pad_along_axis(steps["discount"], max_len, 0, 2)
         padded_timesteps = _pad_along_axis(steps["timestep"], max_len, 0, 0)
         mask = _pad_along_axis(
-            tf.ones(tf.shape(steps["reward"])[0], dtype=bool), max_len, 0, False  # type: ignore
+            tf.ones(tf.shape(steps["reward"])[0], dtype=bool),
+            max_len,
+            0,
+            False,  # type: ignore
         )
         return {
             "observation": padded_obs,

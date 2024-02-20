@@ -92,7 +92,8 @@ class Agent(core.Actor, core.VariableSource):
         if self._iterator.ready():  # type: ignore
             return True
         for table, batch_size in zip(
-            self._replay_tables, self._batch_size_upper_bounds  # type: ignore
+            self._replay_tables,
+            self._batch_size_upper_bounds,  # type: ignore
         ):
             if not table.can_sample(batch_size):
                 return False

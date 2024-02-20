@@ -3,8 +3,8 @@
 from typing import Any, Dict, Optional
 
 import dm_env
-from gymnasium import spaces
 import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 import tree
 

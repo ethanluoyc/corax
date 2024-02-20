@@ -67,7 +67,8 @@ class Policy(hk.Module):
 
         if self.state_dependent_std:
             log_stds = hk.Linear(
-                self.action_dim, w_init=_default_init(self.log_std_scale)  # type: ignore
+                self.action_dim,
+                w_init=_default_init(self.log_std_scale),  # type: ignore
             )(outputs)
         else:
             log_stds = hk.get_parameter("log_stds", (self.action_dim,), init=jnp.zeros)

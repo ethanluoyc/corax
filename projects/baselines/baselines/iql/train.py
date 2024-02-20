@@ -41,7 +41,9 @@ def make_d4rl_transition_dataset(
             num_parallel_calls=tf.data.AUTOTUNE,
         )
         episode_returns = (
-            episode_returns.batch(int(dataset.cardinality())).get_single_element().numpy()  # type: ignore
+            episode_returns.batch(int(dataset.cardinality()))
+            .get_single_element()
+            .numpy()  # type: ignore
         )
         max_episode_return = np.max(episode_returns)
         min_episode_return = np.min(episode_returns)

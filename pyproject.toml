@@ -40,21 +40,6 @@ jax = [
   "dm_env_wrappers",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py39', 'py310']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.github
-  | \.venv
-  | docs
-  | third_party
-  | scratch
-)/
-'''
 
 [[tool.pdm.source]]
 name = "jax_cuda"
@@ -66,7 +51,7 @@ type = "find_links"
 respect-source-order = true
 
 [tool.pdm.dev-dependencies]
-dev = ["black", "ruff", "pre-commit"]
+dev = ["ruff>=0.2.2", "pre-commit"]
 test = [
   "pytest",
   "pytest-xdist",
@@ -80,37 +65,36 @@ test = [
   "ott-jax",
   "dm-control",
 ]
-jax_cuda = ["jax[cuda12_pip]"]
-baselines = [
-  "-e baselines @ file:///${PROJECT_ROOT}/projects/baselines"
-]
+jax_cuda = ["jax[cuda11_pip]"]
+baselines = ["-e baselines @ file:///${PROJECT_ROOT}/projects/baselines"]
 
 [tool.pdm.scripts]
 test.cmd = "pytest -rf --durations=10"
-test.env = {JAX_DISBLAE_MOST_OPTIMIZATIONS = "1", CUDA_VISIBLE_DEVICES = ""}
-lint.shell = "ruff . && black --check --diff ."
-fmt.shell = "ruff --fix . && black ."
+test.env = { JAX_DISBLAE_MOST_OPTIMIZATIONS = "1", CUDA_VISIBLE_DEVICES = "" }
+lint.shell = "ruff . && ruff format --check --diff ."
+fmt.shell = "ruff --fix ."
 
 [tool.ruff]
-line-length = 120
+line-length = 88
+exclude = ["third_party", ".venv"]
+
+[tool.ruff.lint]
+ignore = ["E731", "E501"]
 select = [
   "E", # pycodestyle
   "F", # pyflakes
-  "I",
+  "I", # isort
 ]
-ignore = ["E731"]
-exclude = ["third_party", ".venv"]
-
-[tool.ruff.extend-per-file-ignores]
+[tool.ruff.lint.extend-per-file-ignores]
 "__init__.py" = ["F401"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["corax", "baselines"]
 force-single-line = true
 force-sort-within-sections = true
 single-line-exclusions = ["typing"]
 
-[tool.ruff.flake8-tidy-imports]
+[tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
 [tool.pyright]
@@ -135,5 +119,5 @@ filterwarnings = [
   "ignore::DeprecationWarning:reverb.*:",
   "ignore::DeprecationWarning:tensorflow.*:",
   "ignore::DeprecationWarning:pkg_resources.*:",
-  "ignore::DeprecationWarning:ott.*:"
+  "ignore::DeprecationWarning:ott.*:",
 ]

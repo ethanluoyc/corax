@@ -273,9 +273,7 @@ def normalize(
         data = (data - mean) / std
         if max_abs_value is not None:
             # TODO(b/124318564): remove pylint directive
-            data = jnp.clip(
-                data, -max_abs_value, +max_abs_value
-            )  # pylint: disable=invalid-unary-operand-type
+            data = jnp.clip(data, -max_abs_value, +max_abs_value)  # pylint: disable=invalid-unary-operand-type
         return data
 
     return tree_utils.fast_map_structure(
@@ -362,9 +360,7 @@ def clip(
     def clip_leaf(data: jnp.ndarray, max_abs_value: Optional[float]) -> jnp.ndarray:
         if max_abs_value is not None:
             # TODO(b/124318564): remove pylint directive
-            data = jnp.clip(
-                data, -max_abs_value, +max_abs_value
-            )  # pylint: disable=invalid-unary-operand-type
+            data = jnp.clip(data, -max_abs_value, +max_abs_value)  # pylint: disable=invalid-unary-operand-type
         return data
 
     return tree_utils.fast_map_structure(clip_leaf, batch, max_abs_values)

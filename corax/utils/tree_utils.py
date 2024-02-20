@@ -103,7 +103,8 @@ def stack_sequence_fields(sequence: Sequence[ElementType]) -> ElementType:
         return fast_map_structure(lambda *values: np.stack(values), *sequence)  # type: ignore
     except ValueError:
         return fast_map_structure(
-            lambda *values: np.asarray(values, dtype=object), *sequence  # type: ignore
+            lambda *values: np.asarray(values, dtype=object),
+            *sequence,  # type: ignore
         )
 
 

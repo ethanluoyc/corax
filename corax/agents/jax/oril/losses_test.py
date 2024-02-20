@@ -29,7 +29,10 @@ class ORILLossTest(absltest.TestCase):
 
     def test_oril_loss(self):
         loss, _ = losses.oril_loss(
-            self.rewarder_fn, {}, self.expert_transitions, self.unlabeled_transitions  # type: ignore
+            self.rewarder_fn,
+            {},
+            self.expert_transitions,
+            self.unlabeled_transitions,  # type: ignore
         )
 
         r_e = jax.nn.sigmoid(

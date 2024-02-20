@@ -87,17 +87,15 @@ class PlannerTest(parameterized.TestCase):
         discount = 0.99
         key = jax.random.PRNGKey(0)
 
-        return_prediction = (
-            planning._compute_n_step_return(  # pylint: disable=protected-access
-                next_fn,
-                critic_fn,  # type: ignore
-                policy_fn,
-                params,
-                z,
-                actions,
-                key,
-                discount=discount,
-            )
+        return_prediction = planning._compute_n_step_return(  # pylint: disable=protected-access
+            next_fn,
+            critic_fn,  # type: ignore
+            policy_fn,
+            params,
+            z,
+            actions,
+            key,
+            discount=discount,
         )
 
         return_expected = (
