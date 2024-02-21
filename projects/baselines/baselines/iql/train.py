@@ -41,7 +41,7 @@ def make_d4rl_transition_dataset(
             num_parallel_calls=tf.data.AUTOTUNE,
         )
         episode_returns = (
-            episode_returns.batch(int(dataset.cardinality()))
+            episode_returns.batch(int(dataset.cardinality()))  # type: ignore
             .get_single_element()
             .numpy()  # type: ignore
         )

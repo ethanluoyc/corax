@@ -99,6 +99,7 @@ def make_reverb_dataset(
                 datasets, weights=tables.values()
             )
         else:
+            assert len(datasets) == 1
             dataset = datasets[0]
 
         # Post-process each element if a post-processing function is passed, e.g.

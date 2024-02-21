@@ -1,0 +1,5 @@
+-c test.in
+ruff>=0.2.2
+pre-commit
+nox
+lxm3>=0.4.3

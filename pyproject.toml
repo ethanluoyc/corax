@@ -40,40 +40,6 @@ jax = [
   "dm_env_wrappers",
 ]
 
-
-[[tool.pdm.source]]
-name = "jax_cuda"
-url = "https://storage.googleapis.com/jax-releases/jax_cuda_releases.html"
-verify_ssl = true
-type = "find_links"
-
-[tool.pdm.resolution]
-respect-source-order = true
-
-[tool.pdm.dev-dependencies]
-dev = ["ruff>=0.2.2", "pre-commit"]
-test = [
-  "pytest",
-  "pytest-xdist",
-  "dill",           # required for tfds tests
-  "wandb",
-  "ml-collections",
-  "scipy>=1.6.0",
-  # Environments
-  "gym>=0.21.0,<0.24.0",
-  "gymnasium",
-  "ott-jax",
-  "dm-control",
-]
-jax_cuda = ["jax[cuda11_pip]"]
-baselines = ["-e baselines @ file:///${PROJECT_ROOT}/projects/baselines"]
-
-[tool.pdm.scripts]
-test.cmd = "pytest -rf --durations=10"
-test.env = { JAX_DISBLAE_MOST_OPTIMIZATIONS = "1", CUDA_VISIBLE_DEVICES = "" }
-lint.shell = "ruff . && ruff format --check --diff ."
-fmt.shell = "ruff --fix ."
-
 [tool.ruff]
 line-length = 88
 exclude = ["third_party", ".venv"]
@@ -100,10 +66,16 @@ ban-relative-imports = "all"
 [tool.pyright]
 include = ["corax"]
 exclude = ["**/node_modules", "**/__pycache__"]
-ignore = ["corax/adders", "corax/datasets/tfds"]
+ignore = [
+  "corax/adders",
+  "corax/datasets/tfds",
+  "corax/agents/jax/actor_core.py", # chex dataclass
+  "corax/**/*_test.py" # skip tests
+]
 
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportIncompatibleMethodOverride = false
 
 pythonVersion = "3.10"
 pythonPlatform = "Linux"
@@ -120,4 +92,5 @@ filterwarnings = [
   "ignore::DeprecationWarning:tensorflow.*:",
   "ignore::DeprecationWarning:pkg_resources.*:",
   "ignore::DeprecationWarning:ott.*:",
+  "ignore::DeprecationWarning:gymnasium.*:",
 ]

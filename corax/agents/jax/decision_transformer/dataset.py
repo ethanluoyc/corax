@@ -54,7 +54,7 @@ def transform_decision_transformer_input(
         return episode
 
     def _pad_along_axis(x, padded_size, axis=0, value=0):
-        pad_width = padded_size - tf.shape(x)[axis]
+        pad_width = padded_size - tf.shape(x)[axis]  # type: ignore
         if pad_width <= 0:
             return x
         padding = [(0, 0)] * len(x.shape.as_list())
@@ -72,10 +72,10 @@ def transform_decision_transformer_input(
         padded_discounts = _pad_along_axis(steps["discount"], max_len, 0, 2)
         padded_timesteps = _pad_along_axis(steps["timestep"], max_len, 0, 0)
         mask = _pad_along_axis(
-            tf.ones(tf.shape(steps["reward"])[0], dtype=bool),
+            tf.ones(tf.shape(steps["reward"])[0], dtype=bool),  # type: ignore
             max_len,
             0,
-            False,  # type: ignore
+            False,
         )
         return {
             "observation": padded_obs,

@@ -38,7 +38,7 @@ class Barrier:
         """Waits on the barrier until all threads have called this method."""
         with self._cond:
             self._count += 1
-            self._cond.notifyAll()
+            self._cond.notify_all()
             while self._count < self._num_threads:
                 self._cond.wait()
 
