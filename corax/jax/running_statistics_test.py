@@ -20,7 +20,7 @@ from typing import NamedTuple
 
 from absl.testing import absltest
 import jax
-from jax.config import config as jax_config  # type: ignore
+from jax import config as jax_config
 import jax.numpy as jnp
 import numpy as np
 import tree
@@ -31,7 +31,7 @@ from corax.jax import running_statistics
 update_and_validate = functools.partial(running_statistics.update, validate_shapes=True)
 
 
-class TestNestedSpec(NamedTuple):
+class _TestNestedSpec(NamedTuple):
     # Note: the fields are intentionally in reverse order to test ordering.
     a: specs.Array
     b: specs.Array
@@ -183,7 +183,7 @@ class RunningStatisticsTest(absltest.TestCase):
         tree.map_structure(lambda x: self.assert_allclose(x, jnp.ones_like(x)), std)
 
     def test_different_structure_normalize(self):
-        spec = TestNestedSpec(
+        spec = _TestNestedSpec(
             a=specs.Array((5,), jnp.float32), b=specs.Array((2,), jnp.float32)
         )
         state = running_statistics.init_state(spec)

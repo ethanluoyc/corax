@@ -1,0 +1,10 @@
+--find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
+
+-r base.in
+jax[cuda11_pip]
+d4rl @ git+https://github.com/Farama-Foundation/d4rl@71a9549#egg=d4rl
+mujoco_py @ git+https://github.com/ethanluoyc/mujoco-py@v2.1.2.14-patch
+mjrl @ git+https://github.com/aravindr93/mjrl@master#egg=mjrl
+dm-control
+gymnasium
+wandb

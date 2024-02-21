@@ -126,4 +126,5 @@ filterwarnings = [
   "ignore::DeprecationWarning:tensorflow.*:",
   "ignore::DeprecationWarning:pkg_resources.*:",
   "ignore::DeprecationWarning:ott.*:",
+  "ignore::DeprecationWarning:gymnasium.*:",
 ]
