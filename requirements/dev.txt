@@ -120,5 +120,5 @@ virtualenv==20.25.0
     # via
     #   nox
     #   pre-commit
-wrapt==1.16.0
+wrapt==1.14.1
     # via deprecated

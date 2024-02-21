@@ -10,54 +10,18 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FORCE_COLOR: "1"
-  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: 3
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
-      - name: Checkout (GitHub)
-        uses: actions/checkout@v3
-
-      - name: pdm cache
-        uses: actions/cache@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          path: .cache/pdm
-          key: ${{ runner.os }}-pdm-${{ hashFiles('pdm.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-pdm-
-      - name: TFDS cache
-        uses: actions/cache@v3
-        with:
-          path: .tensorflow_datasets
-          key: ${{ runner.os }}-tfds-${{ hashFiles('pdm.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-tfds-
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and run Dev Container task
-        uses: devcontainers/ci@v0.3
-        with:
-          # Change this to point to your image name
-          imageName: ghcr.io/ethanluoyc/corax
-          cacheFrom: ghcr.io/ethanluoyc/corax
-          # Change this to be your CI task/script
-          runCmd: |
-            # Add multiple commands to run if needed
-            export TFDS_DATA_DIR=$PWD/.tensorflow_datasets
-            mkdir -p $TFDS_DATA_DIR
-            pdm config cache_dir .cache/pdm
-            pdm sync -G:all
-            pdm lint
-            pdm test
-            pdm run python projects/baselines/baselines/iql/train_test.py
+          python-version: '3.10'
+          cache: 'pip' # caching pip dependencies
+      - name: Run nox
+        run: |
+          python -m pip install nox
+          nox -v

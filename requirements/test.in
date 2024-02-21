@@ -1,5 +1,3 @@
--c base.txt
-jax[cpu]
 pytest
 pytest-xdist
 dill # required for tfds tests

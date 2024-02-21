@@ -1,10 +1,26 @@
 --find-links https://storage.googleapis.com/jax-releases/jax_cuda_releases.html
 
--r base.in
 jax[cuda11_pip]
+ml-collections
+absl-py>=0.12.0
+numpy
+gym>=0.21.0,<0.24.0
 d4rl @ git+https://github.com/Farama-Foundation/d4rl@71a9549#egg=d4rl
 mujoco_py @ git+https://github.com/ethanluoyc/mujoco-py@v2.1.2.14-patch
 mjrl @ git+https://github.com/aravindr93/mjrl@master#egg=mjrl
 dm-control
 gymnasium
 wandb
+tensorflow-cpu
+tensorflow-probability
+tensorflow-datasets
+dm-reverb
+rlds
+dm-haiku
+flax
+optax
+rlax
+chex
+dm_env_wrappers
+absl-py
+dm-env

@@ -70,9 +70,7 @@ jax==0.4.24
     #   lineax
     #   ott-jax
 jaxlib==0.4.24
-    # via
-    #   jax
-    #   jaxopt
+    # via jaxopt
 jaxopt==0.8.3
     # via ott-jax
 jaxtyping==0.2.25
