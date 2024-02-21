@@ -20,6 +20,9 @@ classifiers = [
 [tool.pdm.version]
 source = "scm"
 
+[tool.pdm.build]
+excludes = ["**/*_test.py", "**/dummy_data"]
+
 [project.optional-dependencies]
 tf = [
   "tensorflow-cpu~=2.14.0",
