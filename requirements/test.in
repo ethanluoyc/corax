@@ -5,7 +5,7 @@ wandb
 ml-collections
 scipy>=1.6.0
 # Environments
-gym>=0.21.0,<0.24.0
+gym[classic_control]>=0.21.0,<0.24.0
 gymnasium
 ott-jax
 dm-control

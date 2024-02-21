@@ -96,4 +96,5 @@ filterwarnings = [
   "ignore::DeprecationWarning:pkg_resources.*:",
   "ignore::DeprecationWarning:ott.*:",
   "ignore::DeprecationWarning:gymnasium.*:",
+  "ignore::UserWarning:gym.envs.registration:",
 ]

@@ -11,7 +11,7 @@ from corax.wrappers import gym_wrapper
 
 class GymWrapperTest(absltest.TestCase):
     def test_gym_cartpole(self):
-        env = gym.GymWrapper(gym.make("CartPole-v0"))
+        env = gym_wrapper.GymWrapper(gym.make("CartPole-v0"))
 
         # Test converted observation spec.
         observation_spec: specs.BoundedArray = env.observation_spec()
