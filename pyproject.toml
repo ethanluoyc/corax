@@ -100,10 +100,16 @@ ban-relative-imports = "all"
 [tool.pyright]
 include = ["corax"]
 exclude = ["**/node_modules", "**/__pycache__"]
-ignore = ["corax/adders", "corax/datasets/tfds"]
+ignore = [
+  "corax/adders",
+  "corax/datasets/tfds",
+  "corax/agents/jax/actor_core.py", # chex dataclass
+  "corax/**/*_test.py" # skip tests
+]
 
 reportMissingImports = true
 reportMissingTypeStubs = false
+reportIncompatibleMethodOverride = false
 
 pythonVersion = "3.10"
 pythonPlatform = "Linux"

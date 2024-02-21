@@ -89,7 +89,8 @@ class Agent(core.Actor, core.VariableSource):
         self._actor.observe(action, next_timestep)
 
     def _has_data_for_training(self):
-        if self._iterator.ready():  # type: ignore
+        assert self._replay_tables is not None and self._iterator is not None
+        if self._iterator.ready():
             return True
         for table, batch_size in zip(
             self._replay_tables,
