@@ -65,8 +65,14 @@ class GenericActor(core.Actor, Generic[actor_core.State, actor_core.Extras]):
 
         # Unpack ActorCore, jitting if requested.
         if jit:
-            self._init = jax.jit(actor.init, backend=backend)
-            self._policy = jax.jit(actor.select_action, backend=backend)
+            if backend is not None:
+                sharding = jax.sharding.SingleDeviceSharding(
+                    jax.local_devices(backend=backend)[0]
+                )
+            else:
+                sharding = None
+            self._init = jax.jit(actor.init, sharding)  # type: ignore
+            self._policy = jax.jit(actor.select_action, sharding)  # type: ignore
         else:
             self._init = actor.init
             self._policy = actor.select_action
